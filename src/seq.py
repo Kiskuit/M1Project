@@ -28,9 +28,16 @@ class Sequence():
 
     def __getitem__(self,i):
         if i>=self.n:
+            #naïf : L = to_list([coef],i)
+            #return L[i]
             return self.cond_init[self.n-1]
         else :
             return self.cond_init[i]
+    def __add__(self,other):
+        #use lclm to find the sum
+    def __mul__(self,other):
+        #use symmetric_product to mul
+
 
 if __name__ == "__main__" :
     cond = [1,2,3]
