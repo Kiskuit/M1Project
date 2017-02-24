@@ -25,15 +25,23 @@ if __name__ =="__main__":
     except ProjException as e:
         print 1
         print e.text
+
     try:
         raise ProjException("test")
     except ProjException as e:
         print 2
         print e.text
+    
     try:
         raise ProjException("test", 4)
     except ProjException as e:
         print 3
+        print e.text
+    
+    try:
+        raise ProjException(val=4)
+    except ProjException as e:
+        print 4
         print e.text
 
 
