@@ -17,7 +17,7 @@ class ProjException(Exception) :
 
         self.text += "\nException value : ".format("No value provided" if val=="" else val)
         self.text += "No value provided" if val=="" else str(val)
-
+        self.val = val
 
 if __name__ =="__main__":
     try:

@@ -22,10 +22,12 @@ from exception import ProjException
 # Just used for tests at uni
 IS_ORE_ALGEBRA=True
 try :
-    from sage.all import *
+
+	sys.path.insert(0,"../../ore_algebra-analytic/src")
+	from sage.all import *
     # TODO set path to ore_algebra
 
-    from ore_algebra import *
+	from ore_algebra import *
 except ImportError :
     IS_ORE_ALGEBRA=False
     PATH_TO_ORE = raw_input(("ore_algebra module was not found in working directory,\n"
@@ -34,77 +36,179 @@ except ImportError :
 
 
 class PRecSequence():
-    def __init__(self, cond, pols,var):
-          # TODO : coerce
-        # TODO use sage sequences
+	def __init__(self, cond, pols,var,roots_conds=[]):
+		  # TODO : coerce
+		# TODO use sage sequences
 
-        #--Get the ring---
-        ring = [ZZ,QQ,RR,CC]
-        i = 0
-        for elt in pols:
-            # print (elt,ring[i])
-            while i < len(ring) and elt not in ring[i][var] :
-                i +=1
-        self.var = var
-        self.ring = ring[i][var]
-        #-----------------
+		#--Get the ring---
+		ring = [ZZ,QQ,RR,CC]
+		i = 0
+		for elt in pols:
+		    # print (elt,ring[i])
+		    while i < len(ring) and elt not in ring[i][var] :
+		        i +=1
+		self.var = var
+		self.ring = ring[i][var]
+		#-----------------
 
-        self.cond_init = Sequence(cond)
-        self.R,self.op = OreAlgebra(self.ring,'S'+var).objgen()
-        
-        #---Set annihilator ---
-        self.annihilator = 0
-        for elt,i in zip(Sequence(pols),range(0,len(Sequence(pols)))):
-            self.annihilator += self.ring(elt)*self.op**i
-        #----------------------
+		self.cond_init = Sequence(cond)
+		self.cond_roots = Sequence([(i,cond[i]) for i in range(0,len(cond))] + [elt for elt in roots_conds])
+		# print(self.cond_roots)
+		# self.cond_roots = Sequence(roots_conds)
+		self.R,self.op = OreAlgebra(self.ring,'S'+var).objgen()
 
-        self.n = len(cond)
-        if self.n < len(pols)-1 :
-            raise ProjException(string="Not enough initial conditions")
+		#---Set annihilator ---
+		self.annihilator = 0
+		for elt,i in zip(Sequence(pols),range(0,len(Sequence(pols)))):
+		    self.annihilator += self.ring(elt)*self.op**i
+		#----------------------
 
-    def __getitem__(self,i):
-        if i>=self.n:
+		self.n = len(cond)
+
+		if self.n < len(pols)-1 :
+		    raise ProjException(string="Not enough initial conditions")
+		special_root = [elt + self.n for elt in find_positive_roots(pols[-1])]
+		contain = False
+		NcontainList = []
+		for val in special_root:
+			for elt in self.cond_roots:
+				if(val == elt[0]):
+					contain = True
+			if(not contain):
+				NcontainList.append(val)
+			contain = False
+		if NcontainList:
+			raise ProjException(string="Miss some value",val=NcontainList)
+
+	def to_list(self,i):
+		if i>=self.n:
+			L = []
             #find i+1 element and return the last 
-            L = self.annihilator.to_list(self.cond_init,i+1)
-            return L[i]
-            # return self.cond_init[self.n-1]
-        else :
-            return self.cond_init[i]
-    def __add__(self,other):
-        #find annihilator for the add
-        tmp = self.annihilator.lclm(self.R(other.annihilator))
-        new_annihilator = [i for i in tmp]
+			if len(self.cond_roots) <= len(self.cond_init):
+				L = self.annihilator.to_list(self.cond_init,i+1)
+			else:
+				L = self.annihilator.to_list(self.cond_init,self.cond_roots[len(self.cond_init)][0])+[self.cond_roots[len(self.cond_init)][1]]
+				inc = 1
+				while len(self.cond_roots) > len(self.cond_init)+ inc and i >= self.cond_roots[len(self.cond_init)+inc][0]:
+					L = self.annihilator.to_list(L, self.cond_roots[len(self.cond_init)][0])+[self.cond_roots[len(self.cond_init)][1]]
+					inc += 1
+				L = self.annihilator.to_list(L,i+1)
+			return L[:i+1]
+		else :
+			return self.cond_init[:i+1]
+	def __getitem__(self,i):
+		if i>=self.n:
+			L = []
+            #find i+1 element and return the last 
+			if len(self.cond_roots) <= len(self.cond_init):
+				L = self.annihilator.to_list(self.cond_init,i+1)
+			else:
+				L = self.annihilator.to_list(self.cond_init,self.cond_roots[len(self.cond_init)][0])+[self.cond_roots[len(self.cond_init)][1]]
+				inc = 1
+				while len(self.cond_roots) > len(self.cond_init)+ inc and i >= self.cond_roots[len(self.cond_init)+inc][0]:
+					L = self.annihilator.to_list(L, self.cond_roots[len(self.cond_init)][0])+[self.cond_roots[len(self.cond_init)][1]]
+					inc += 1
+				L = self.annihilator.to_list(L,i+1)
+			return L[i]
+		else :
+			return self.cond_init[i]
+	def __add__(self,other):
+		#find annihilator for the add
+		new_annihilator = list(self.annihilator.lclm(self.R(other.annihilator)))
+		# new_annihilator = [i for i in tmp]
+		# print("coef annilator for the sum",new_annihilator)
+		#find degenerative case
+		needed_root = find_positive_roots(new_annihilator[-1])
 
-        #find initial condition for the add
-        #need len(annihilator)-1 cond
-        cond1 = self.annihilator.to_list(self.cond_init,len(new_annihilator)-1)
-        cond2 = other.annihilator.to_list(other.cond_init,len(new_annihilator)-1)
-        #do the sum pairwise
-        new_cond = [sum(x) for x in zip(cond1, cond2)]
+		#find initial condition for the add
+		#need len(annihilator)-1 cond
+		cond1 = self.to_list(len(new_annihilator)-1)
+		cond2 = other.to_list(len(new_annihilator)-1)
+		#do the sum pairwise
+		new_cond = [sum(x) for x in zip(cond1, cond2)]
 
-        #create a new PRecSequence
-        newElt = PRecSequence(new_cond,new_annihilator,self.var)
-        return newElt
-    def __mul__(self,other):
-        #use symmetric_product to mul
-        pass
+		#create a new PRecSequence
+		try:
+			newElt = PRecSequence(new_cond,new_annihilator,self.var)
+		except ProjException as e :
+			# print (e.text)
+			#get the value needed in e.val
+			more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
+			newElt = PRecSequence(new_cond,new_annihilator,self.var,more_val)
+
+		return newElt
+	def __mul__(self,other):
+        # #use symmetric_product to mul
+		new_annihilator = list(self.annihilator.symmetric_product(self.R(other.annihilator)))
+		# new_annihilator = [i for i in tmp]
+		# print("coef annilator for the sum",new_annihilator)
+		#find degenerative case
+		needed_root = find_positive_roots(new_annihilator[-1])
+
+		#find initial condition for the add
+		#need len(annihilator)-1 cond
+		cond1 = self.to_list(len(new_annihilator)-1)
+		cond2 = other.to_list(len(new_annihilator)-1)
+		#do the sum pairwise
+		new_cond = [x*y for x,y in zip(cond1, cond2)]
+
+		#create a new PRecSequence
+		try:
+			newElt = PRecSequence(new_cond,new_annihilator,self.var)
+		except ProjException as e :
+			# print (e.text)
+			#get the value needed in e.val
+			more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
+			newElt = PRecSequence(new_cond,new_annihilator,self.var,more_val)
+
+		return newElt
+	def __str__(self):
+		_str = "initial conditon : "+str(self.cond_init)
+		_str += "\nrecurence : "+str(self.annihilator)
+		return _str
+	def __repr__(self):
+		return "P-recurcive suite"
+
+def find_positive_roots(poly):
+	Proot = []
+	try:
+		root = poly.roots()
+		for elt,mult in root:
+			if(elt >= 0):
+				Proot.append(elt)
+		# print(needed_root)
+	except:
+		pass
+
+	return Proot
 
 
 if __name__ == "__main__" :
 	var('n')
 
 	cond = [1]
-	pols = [-(n+1),1/2.0]
+	pols = [-n-1,1]
 
 	cond2 = [0,1]
 	pols2 = [-1,-1,1]
 	try :
 		s = PRecSequence(cond, pols,'n')
+		print("fact")
+		print(s)
+		print(s.to_list(10))
 		s2 = PRecSequence(cond2, pols2,'n')
+		print("fib")
+		print(s2)
+		print(s2.to_list(10))
 		s3 = s+s2
-		print(s3.annihilator)
-		print(s3.cond_init)
-		print(s3[4])
+		print("sum")
+		print(s3)
+		print(s3.to_list(10))
+
+		s4 = s*s2
+		print("mul")
+		print(s4)
+		print(s4.to_list(10))
         
 	except ProjException as e :
 		print (e.text)
