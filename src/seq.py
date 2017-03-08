@@ -25,25 +25,26 @@ try :
 
 	sys.path.insert(0,"../../ore_algebra-analytic/src")
 	from sage.all import *
-    # TODO set path to ore_algebra
-
 	from ore_algebra import *
 except ImportError :
-    IS_ORE_ALGEBRA=False
     PATH_TO_ORE = raw_input(("ore_algebra module was not found in working directory,\n"
         "please provide a path to ore_algebra module : "))
-    # TODO import ore_algebra with provided path
+	try :
+		sys.path.insert(0,PATH_TO_ORE)
+		from ore_algebra import *
+	except ImportError :
+		IS_ORE_ALGEBRA=False
 
 
 class PRecSequence():
 	def __init__(self, cond, pols,var,roots_conds=[]):
-		  # TODO : coerce
-		# TODO use sage sequences
+		# TODO : coerce
 
+		# TODO : Could probably optimize this
 		#--Get the ring---
 		ring = [ZZ,QQ,RR,CC]
-		i = 0
 		for elt in pols:
+			i = 0
 		    # print (elt,ring[i])
 		    while i < len(ring) and elt not in ring[i][var] :
 		        i +=1
