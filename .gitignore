@@ -93,3 +93,6 @@ ENV/
 # Vim files
 *.swp
 *~
+
+# TeX files
+*.aux
