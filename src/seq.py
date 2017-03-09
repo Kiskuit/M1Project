@@ -38,16 +38,19 @@ except ImportError :
 
 class PRecSequence():
 	def __init__(self, cond, pols,var,roots_conds=[]):
-		# TODO : coerce
 
-		# TODO : Could probably optimize this
 		#--Get the ring---
+		# TODO : Could probably optimize this
 		ring = [ZZ,QQ,RR,CC]
+        i = 0
 		for elt in pols:
-			i = 0
 		    # print (elt,ring[i])
 		    while i < len(ring) and elt not in ring[i][var] :
 		        i +=1
+            #In case element does not fit any of the base rings
+            if elt not in ring[len(ring)-1][var] :
+                raise ProjectException(
+                    string="Element not included in base rings (ZZ,QQ,RR,CC)")
 		self.var = var
 		self.ring = ring[i][var]
 		#-----------------
