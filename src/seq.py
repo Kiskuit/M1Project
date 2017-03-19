@@ -70,7 +70,7 @@ class PRecSequence():
         self.n = len(cond)
 
         if self.n < len(pols)-1 :
-            raise ProjException(string="Not enough initial conditions")
+            raise Exception("Not enough initial conditions")
         special_root = [elt + self.n for elt in find_positive_roots(pols[-1])]
         contain = False
         NcontainList = []
@@ -82,7 +82,7 @@ class PRecSequence():
                 NcontainList.append(val)
             contain = False
         if NcontainList:
-            raise ProjException(string="Miss some value",val=NcontainList)
+            raise Exception("Miss some value")
 
     def to_list(self,i):
         if i>=self.n:
@@ -134,7 +134,8 @@ class PRecSequence():
         #create a new PRecSequence
         try:
             newElt = PRecSequence(new_cond,new_annihilator,self.var)
-        except ProjException as e :
+        except Exception as e :
+            #TODO modify to take into account new exception
             # print (e.text)
             #get the value needed in e.val
             more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
@@ -159,7 +160,8 @@ class PRecSequence():
         #create a new PRecSequence
         try:
             newElt = PRecSequence(new_cond,new_annihilator,self.var)
-        except ProjException as e :
+        except Exception as e :
+            #TODO modify to take into account new exception
             # print (e.text)
             #get the value needed in e.val
             more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
@@ -214,8 +216,8 @@ if __name__ == "__main__" :
         print(s4)
         print(s4.to_list(10))
         
-    except ProjException as e :
-        print (e.text)
+    except Exception as e :
+        print (e)
 
     #test avec PRecSequence
     #factorial
