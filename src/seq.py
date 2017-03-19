@@ -11,12 +11,8 @@
 
 
 # General imports
-# TODO : sage import future print already if not mistaken
 from __future__ import print_function
 import sys
-
-# Project imports
-from exception import ProjException
 
 # Ore_algebra import
 # Try to import ore_algebra if available
