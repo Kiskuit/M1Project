@@ -20,7 +20,6 @@ import sys
 # vous » ; il vaut mieux choisir l'exception que l'on déclenche en fonction de
 # la situation où on la déclenche. Souvent, une exception standard de Python
 # (TypeError, ZeroDivisionError...) fait l'affaire.
-from exception import ProjException
 
 # Ore_algebra import
 # Try to import ore_algebra if available
@@ -44,6 +43,7 @@ from exception import ProjException
 
 # >>>> Ok pour l'instant, mais on évite généralement les "import *" dans du
 # code de bibliothèque propre.
+from sage.all import *
 from ore_algebra import *
 
 # >>> Généralités :
@@ -121,43 +121,49 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # anneaux correspondants.
 
         # >>> Envisagez éventuellement de passer les conditions initiales sous
-        # forme de dictionnaire {indice: valeur}.
+        # forme de dictionnaire {indice: valeur} trié.
         sorted_cond = {}
         for key in sorted(cond):
             sorted_cond[key] = cond[key]
 
-        self.cond_init_pos = Sequence(sorted_cond.keys())
-        self.cond_init_val = Sequence(sorted_cond.values())
+        self.cond_init_pos = Sequence(sorted_cond.keys(),use_sage_types=True)
+        self.cond_init_val = Sequence(sorted_cond.values(),use_sage_types=True)
 
-        #bug : todo correction .parent() toujours != ZZ
-        if(self.cond_init_pos.parent() != ZZ):
+        #verification des indices de la suite
+        if(self.cond_init_pos.universe() != ZZ):
             raise Exception("Index value error")
 
-        # get the ring of each element
+        # récuperation de l'anneau des coeficient
         self.base_ring = annihilator.base_ring()
 
-        # get the operator of the recurence
+        # récuperation de l'operateur de récurence 
         self.operator = annihilator.parent().gen()
 
-        # store the annihilator
+        # sauvegarde de l'annihilateur de la suite
         self.annihilator = annihilator
-
+        #sauvegarde de l'ordre de la recurence
         self.order = annihilator.order()
-
-        # roots = []
-        #
+        # recherche si il y a des racines du polynome "dominant" qui sont
+        #superieur au plus petit element de la suite 
         for elt in annihilator[annihilator.order()].roots():
-            if(elt.parent() == ZZ and elt > 0 and elt not in self.cond_init_pos): # > 0 for now but not later
+            if(elt.parent() == ZZ and elt > self.cond_init_pos[0] and elt not in self.cond_init_pos):
                 raise Exception("Some initial value are Missing")
-            # if elt.parent() == ZZ:
-                # roots += [elt]
+
+        #calcul pour savoir si il y a assez de valeur initial
+        i = 0
+        while i < self.order:
+            if self.cond_init_pos[i] +1 != self.cond_init_pos[i+1]:
+                raise Exception("Not enough initial value")
+            i += 1
+
         #------------
 
-
-        #
-        _,max = greater_concec_value(self.cond_init_pos)
-        if(max < self.order):
-            raise Exception("Not enough initial value")
+        # >>> Je déconseille les noms d'attribut d'une lettre, on s'y perd
+        # vite -- self.order serait plus explicite. Mais vous n'avez peut-être
+        # même pas besoin de cet attribut : self.annihilator.order() marche
+        # aussi.
+        # >>> Attention aussi à ce que le nombre de conditions initiales n'est
+        # pas forcément égal à l'ordre de l'opérateur !
 
         #------------
 
@@ -180,15 +186,20 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         rank = get_index(i,l1,self.order)
         if( rank  == -1):
             raise Exception("Can't find the ",i,"-th element")
-        cond = True
         ret = []
-        tmp = rank
-        ret = l2[rank:rank+order]
-        j = next_jump(l1[tmp:])
-        while( j != -1 and i >= l1[j]):
-            ret += self.annihilator.to_list(ret[-2:],j)[2:]
-            j = next_jump(l1[tmp:])
-        #faire un split a la fin ou moins en calculer
+        j = rank
+        ret = l2[rank:rank+self.order]
+        #on concatene la liste tant qu'il y a des element disjoint dans les conditions initials
+
+        if(i < j):
+            while( j != -1 and i > len(ret)):
+                if(next_jump(l1[j:]) != -1):
+                    j += next_jump(l1[j:])
+                    ret = self.annihilator.to_list(ret,j)
+                else:
+                    j = -1
+                # j = next_jump(l1[j:])
+        ret = self.annihilator.to_list(ret,i)
         return ret
 
 
@@ -265,8 +276,6 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
 #retour l'index le plus petit avec lenght concecutif element 
 def get_index(i,l,lenght):
-    # l.reverse()
-    print l
     j = 0
     m = 1
     cond = True
@@ -275,14 +284,12 @@ def get_index(i,l,lenght):
             while i <= l[j]:
                 j += 1
             prev = l[j]
-            print("j",j)
             for k in range(1,lenght):
                 if  prev + 1 ==  l[j + k] :
                     m += 1
                 else:
                     m = 1
                 prev = l[j+k]
-            print("m",m)
             if m == lenght:
                 cond = False
             else:
@@ -293,6 +300,7 @@ def get_index(i,l,lenght):
         # l.reverse()
         return -1
     return j
+#recupere le prochain index dont la valeur est non consecutive a la precedente
 def next_jump(l):
     prev = l[0]
     for i in range(1,len(l)):
@@ -305,7 +313,9 @@ if __name__ == "__main__" :
     #start examples
     condition = {0:0,1:1,2:1,3:2,4:3,8:21}
     A,n = ZZ["n"].objgen()
-    R,_ = Ore_algebra(A,"Sn")
+    R,Sn = OreAlgebra(A,"Sn").objgen()
     a = Sn**2 -Sn - 1
     S1 = PRecSequence(condition,a)
+    a = S1.to_list(10)
+    print(a,len(a))
     #end examples
