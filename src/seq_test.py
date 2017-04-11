@@ -201,8 +201,10 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
                 # j = next_jump(l1[j:])
         ret = self.annihilator.to_list(ret,i)
         return ret
-
-
+    #a changer car trop long 
+    def slice(self,i=0,j,k=1):
+        tab = self.to_list(j)
+        return tab[i:j:k]
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
     # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
@@ -311,7 +313,7 @@ def next_jump(l):
 
 if __name__ == "__main__" :
     #start examples
-    condition = {0:0,1:1,2:1,3:2,4:3,8:21}
+    condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
     a = Sn**2 -Sn - 1
