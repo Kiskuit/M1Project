@@ -126,12 +126,13 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         for key in sorted(cond):
             sorted_cond[key] = cond[key]
 
+        self.cond_init = cond
         self.cond_init_pos = Sequence(sorted_cond.keys(),use_sage_types=True)
         self.cond_init_val = Sequence(sorted_cond.values(),use_sage_types=True)
 
         #verification des indices de la suite
         if(self.cond_init_pos.universe() != ZZ):
-            raise Exception("Index value error")
+            raise Exception("Index value error: index must be a Integer")
 
         # récuperation de l'anneau des coeficient
         self.base_ring = annihilator.base_ring()
@@ -146,14 +147,14 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # recherche si il y a des racines du polynome "dominant" qui sont
         #superieur au plus petit element de la suite 
         for elt in annihilator[annihilator.order()].roots():
-            if(elt.parent() == ZZ and elt > self.cond_init_pos[0] and elt not in self.cond_init_pos):
-                raise Exception("Some initial value are Missing")
+            if(elt[0].parent() == ZZ and elt[0] > self.cond_init_pos[0] and elt[0] not in self.cond_init_pos):
+                raise Exception("Initiallisation failed : Some initial value are Missing: ",elt[0])
 
         #calcul pour savoir si il y a assez de valeur initial
         i = 0
-        while i < self.order:
+        while i < self.order-1:
             if self.cond_init_pos[i] +1 != self.cond_init_pos[i+1]:
-                raise Exception("Not enough initial value")
+                raise Exception("Initiallisation failed : Not enough initial value")
             i += 1
 
         #------------
@@ -179,32 +180,50 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
     # >>> Au lieu/en plus d'avoir une méthode to_list(), vous pourriez essayer
     # de gérer la syntaxe u[i:j] (ou même u[i:j:k]) dans __getitem__().
     def to_list(self,i):
-        l1 = copy(self.cond_init_pos)
-        l2 = copy(self.cond_init_val)
+        # copie des element a utiliser
+        l = copy(self.cond_init)
+        l1 = copy(l.keys())
+        l2 = copy(l.values())
+
+        # si i est plus petit que le plus petit l'indice 
         if( i < self.cond_init_pos[0] ):
             raise Exception("Unexpected Value Index")
-        rank = get_index(i,l1,self.order)
-        if( rank  == -1):
-            raise Exception("Can't find the ",i,"-th element")
-        ret = []
-        j = rank
-        ret = l2[rank:rank+self.order]
-        #on concatene la liste tant qu'il y a des element disjoint dans les conditions initials
+        #recupere l'index 
+        ret = l2[:self.order]
+        pos = l1[self.order-1]
+        end = 0
+        while i > pos:
+            pos += 1
+        if pos in l1:
+                ret += [l[pos]]
+            else:
+                ret = self.annihilator.to_list(ret,len(ret)+1)            
+        return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
 
-        if(i < j):
-            while( j != -1 and i > len(ret)):
-                if(next_jump(l1[j:]) != -1):
-                    j += next_jump(l1[j:])
-                    ret = self.annihilator.to_list(ret,j)
-                else:
-                    j = -1
-                # j = next_jump(l1[j:])
-        ret = self.annihilator.to_list(ret,i)
-        return ret
+
+        # rank = get_index(i,l1,self.order)
+        # print("rank: ",rank)
+        # if( rank  == -1):
+        #     raise Exception("Can't find the ",i,"-th element")
+        # ret = []
+        # j = rank
+        # ret = l2[rank:rank+self.order]
+        # #on concatene la liste tant qu'il y a des element disjoint dans les conditions initials
+
+        # if(i < j):
+        #     while( j != -1 and i > len(ret)):
+        #         if(next_jump(l1[j:]) != -1):
+        #             j += next_jump(l1[j:])
+        #             ret = self.annihilator.to_list(ret,j)
+        #         else:
+        #             j = -1
+        #         # j = next_jump(l1[j:])
+        # ret = self.annihilator.to_list(ret,i)
+        # return ret
     #a changer car trop long 
-    def slice(self,i=0,j,k=1):
-        tab = self.to_list(j)
-        return tab[i:j:k]
+    # def slice(self,i=0,j,k=1):
+    #     tab = self.to_list(j)
+    #     return tab[i:j:k]
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
     # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
@@ -212,112 +231,79 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
     # même méthode auxiliaire.
     def __getitem__(self,i):
         pass #todo
-    def __add__(self,other):
-        #find annihilator for the add
+    # def __add__(self,other):
+    #     #find annihilator for the add
 
-        # >>> La conversion forcée de other.annihilator dans self.R est un peu
-        # violente. Il vaut probablement mieux déclencher une erreur si les
-        # deux annulateurs n'ont pas le même parent, ou à la rigueur utiliser
-        # self.R.coerce().
-        new_annihilator = list(self.annihilator.lclm(self.R(other.annihilator)))
-        # new_annihilator = [i for i in tmp]
-        # print("coef annilator for the sum",new_annihilator)
-        #find degenerative case
-        needed_root = find_positive_roots(new_annihilator[-1])
+    #     # >>> La conversion forcée de other.annihilator dans self.R est un peu
+    #     # violente. Il vaut probablement mieux déclencher une erreur si les
+    #     # deux annulateurs n'ont pas le même parent, ou à la rigueur utiliser
+    #     # self.R.coerce().
+    #     new_annihilator = list(self.annihilator.lclm(self.R(other.annihilator)))
+    #     # new_annihilator = [i for i in tmp]
+    #     # print("coef annilator for the sum",new_annihilator)
+    #     #find degenerative case
+    #     needed_root = find_positive_roots(new_annihilator[-1])
 
-        #find initial condition for the add
-        #need len(annihilator)-1 cond
-        cond1 = self.to_list(len(new_annihilator)-1)
-        cond2 = other.to_list(len(new_annihilator)-1)
-        #do the sum pairwise
-        new_cond = [sum(x) for x in zip(cond1, cond2)]
+    #     #find initial condition for the add
+    #     #need len(annihilator)-1 cond
+    #     cond1 = self.to_list(len(new_annihilator)-1)
+    #     cond2 = other.to_list(len(new_annihilator)-1)
+    #     #do the sum pairwise
+    #     new_cond = [sum(x) for x in zip(cond1, cond2)]
 
-        #create a new PRecSequence
-        try:
-            newElt = PRecSequence(new_cond,new_annihilator,self.var)
-        # >>> Vous avez calculé des racines plus haut, pourquoi ne pas vous en
-        # servir ? En tout cas il faut choisir entre les deux mécanismes !
-        except ProjException as e :
-            # print (e.text)
-            #get the value needed in e.val
-            more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
-            newElt = PRecSequence(new_cond,new_annihilator,self.var,more_val)
+    #     #create a new PRecSequence
+    #     try:
+    #         newElt = PRecSequence(new_cond,new_annihilator,self.var)
+    #     # >>> Vous avez calculé des racines plus haut, pourquoi ne pas vous en
+    #     # servir ? En tout cas il faut choisir entre les deux mécanismes !
+    #     except ProjException as e :
+    #         # print (e.text)
+    #         #get the value needed in e.val
+    #         more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
+    #         newElt = PRecSequence(new_cond,new_annihilator,self.var,more_val)
 
-        return newElt
-    def __mul__(self,other):
-        # #use symmetric_product to mul
-        new_annihilator = list(self.annihilator.symmetric_product(self.R(other.annihilator)))
-        # new_annihilator = [i for i in tmp]
-        # print("coef annilator for the sum",new_annihilator)
-        #find degenerative case
-        needed_root = find_positive_roots(new_annihilator[-1])
+    #     return newElt
+    # def __mul__(self,other):
+    #     # #use symmetric_product to mul
+    #     new_annihilator = list(self.annihilator.symmetric_product(self.R(other.annihilator)))
+    #     # new_annihilator = [i for i in tmp]
+    #     # print("coef annilator for the sum",new_annihilator)
+    #     #find degenerative case
+    #     needed_root = find_positive_roots(new_annihilator[-1])
 
-        #find initial condition for the add
-        #need len(annihilator)-1 cond
-        cond1 = self.to_list(len(new_annihilator)-1)
-        cond2 = other.to_list(len(new_annihilator)-1)
-        #do the sum pairwise
-        new_cond = [x*y for x,y in zip(cond1, cond2)]
+    #     #find initial condition for the add
+    #     #need len(annihilator)-1 cond
+    #     cond1 = self.to_list(len(new_annihilator)-1)
+    #     cond2 = other.to_list(len(new_annihilator)-1)
+    #     #do the sum pairwise
+    #     new_cond = [x*y for x,y in zip(cond1, cond2)]
 
-        #create a new PRecSequence
-        try:
-            newElt = PRecSequence(new_cond,new_annihilator,self.var)
-        except ProjException as e :
-            # print (e.text)
-            #get the value needed in e.val
-            more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
-            newElt = PRecSequence(new_cond,new_annihilator,self.var,more_val)
+    #     #create a new PRecSequence
+    #     try:
+    #         newElt = PRecSequence(new_cond,new_annihilator,self.var)
+    #     except ProjException as e :
+    #         # print (e.text)
+    #         #get the value needed in e.val
+    #         more_val = [(elt,self[elt]+other[elt]) for elt in e.val ]
+    #         newElt = PRecSequence(new_cond,new_annihilator,self.var,more_val)
 
-        return newElt
+    #     return newElt
     def __str__(self):
+        return "P-recurcive suite"
+    def __repr__(self):
         _str = "initial conditon : "+str(self.cond_init)
         _str += "\nrecurence : "+str(self.annihilator)
-        return _str
-    def __repr__(self):
-        return "P-recurcive suite"
-
-#retour l'index le plus petit avec lenght concecutif element 
-def get_index(i,l,lenght):
-    j = 0
-    m = 1
-    cond = True
-    try:
-        while(cond):
-            while i <= l[j]:
-                j += 1
-            prev = l[j]
-            for k in range(1,lenght):
-                if  prev + 1 ==  l[j + k] :
-                    m += 1
-                else:
-                    m = 1
-                prev = l[j+k]
-            if m == lenght:
-                cond = False
-            else:
-                m = 1
-                j += 1
-        # l.reverse()    
-    except:
-        # l.reverse()
-        return -1
-    return j
-#recupere le prochain index dont la valeur est non consecutive a la precedente
-def next_jump(l):
-    prev = l[0]
-    for i in range(1,len(l)):
-        if(prev+1 != l[i]):
-            return i 
-        prev = l[i]
-    return -1
+        return "P-recurcive suite\n"+ _str
 
 if __name__ == "__main__" :
     #start examples
-    condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
+    # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
+    condition = {0:0,1:1,2:7,3:10,9:21}
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
     a = Sn**2 -Sn - 1
     S1 = PRecSequence(condition,a)
-    a = S1.to_list(10)
+    a = S1.to_list(100)
     print(a,len(a))
+
     #end examples
