@@ -15,7 +15,8 @@
 from __future__ import print_function
 import sys
 
-# Project imports
+# Project imports FAIT
+
 # >>> Ce n'est probablement pas une bonne idée d'avoir une exception « à
 # vous » ; il vaut mieux choisir l'exception que l'on déclenche en fonction de
 # la situation où on la déclenche. Souvent, une exception standard de Python
@@ -53,6 +54,7 @@ from ore_algebra import *
 # nécessaire de traiter séparément les conditions initiales « de base » et les
 # conditions initiales « supplémentaires » ?
 #
+# on a fait ZZ, 
 # - Essayez de traiter des exemples de suites à valeur dans différents anneaux.
 # Quelques exemples d'anneaux intéressants : les entiers ZZ, les rationnels QQ,
 # les flottants réels ou complexes à différentes précisions RealField(prec),
@@ -91,7 +93,7 @@ from ore_algebra import *
 #   - des opérations de décalage (__lshift__(), éventuellement __rshift__()
 #     avec une sémantique à clarifier),
 #   - un test d'égalité (__eq__(), __ne__(), éventuellement __nonzero__()),
-#   - un test de si une suite est constante,
+#   - un test de si une suite est constante,  FAIT
 #   - un itérateur infini, qui produit des termes de la suite à volonté
 #     (__iter__()),
 #   - un constructeur produisant une suite constante (pour l'instant dans une
@@ -238,6 +240,22 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         pass
     # def __mul__(self,other):
         pass #todo
+    def is_const(self):
+        #si la suite est d'ordre 1 et Un+1 - Un = 0 et que les conditions initiaux sont toutes egales
+        if self.order == 1 and self.annihilator[0] != 0 and self.annihilator[0] == -self.annihilator[1]:
+            val = self.cond.values()[0]
+            for i in self.cond.values():
+                if val != i:
+                    return False
+        return True
+
+    #-----------todo
+    def __iter__(self):
+        return self
+
+    def next(self):
+        pass
+    #-----------end todo
     def __str__(self):
         return "P-recurcive suite"
     def __repr__(self):
