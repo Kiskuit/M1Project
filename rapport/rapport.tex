@@ -26,6 +26,8 @@
 %
 \usepackage{npac}
 \usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{color}
@@ -53,16 +55,51 @@
 
 \section{Introduction}
     \label{sec:intro}
-    Nous nous intéressons ici aux suites p-récursives, et comment les manipuler dans SageMath (ou Sage). \\
     {\color{red} ...TODO...}
     \subsection{Suites p-récursives \& Algèbre d'Ore}
+        \par Les suites sont beaucoup utilisées en mathématiques et dans différents domaines
+        scientifiques, et on cherche, comme souvent en informatique, à en avoir une
+        représentation exacte. De plus, il est généralement important que cette représentation
+        soit également efficace pour la manipulation mathématique de ces suites.
+        \par On s'intéresse ici en particulier aux suites dites p-récursives.
+        Une suite $(u_n)_{n\in\mathbb N}$ sur un corps $\mathbb K$ est dite p-récursive
+        si elle est solution d'une équation de la forme :
+        \begin{equation}
+            \sum_{i=0}^s p_i(n) u_{n+i} = 0
+        \end{equation}
+        où, les $p_i$ sont des polynômes en n. Des exemples communs de suites p-récursives
+        sont par exemple la suite de Fibonacci, ou la fonction factorielle.
+        \begin{eqnarray*}
+            \textnormal{Fibonacci : } u_{n+2} - u_{n+1} - u_n = 0\\
+            \textnormal{Factorielle : } u_{n+1} - (n+1)*u_n = 0
+        \end{eqnarray*}
+        Dans ce cadre, les suites p-récursives sont particulièrement intéressantes.
+        En effet, 
         (Motivations : Repr exactes de suites, utilisée dans différents domaines des maths/sciences)
         \label{ssec:prec}
         {\color{red} ...TODO...}
     \subsection{Python \& Sage}
         \label{ssec:sage}
-        {\color{red} ...TODO...}
-
+        \par Sage est un outil de calcul formel libre.
+        Il a été créé notamment pour proposer
+        une alternative \textit{opensource} aux logiciels existants comme Mathematica,
+        Matlab, Maple \ldots Contrairement à ces logiciels, Sage s'appuie sur des outils
+        et librairies déjà existants comme NumPy, SciPy, matplotlib, FLINT et d'autres...
+        L'utilisation de ces outils et unifiée et uniformisée au travers un langage
+        basé sur Python. Ce langage présente une syntaxe qui diffère légérement de celle
+        de Python. Ainsi, Sage est doté d'un "pré-analyseur",
+        qui transforme les idiomes Sage en pur Python.
+        Ainsi, il est possible d'écrire des librairies pour en Python pur ou en "langage sage".
+        Bien qu'il existe également d'autres méthodes, on ne s'est intéressé qu'à celles-ci au
+        cours du projet.
+        \par Comme évoqué plus haut, Sage est basé sur Python, et c'est donc naturellement
+        que nous avons choisi ce langage pour le projet.
+        En particulier, Python 2, puisque Sage n'est pas compatible avec Python 3
+        (bien que des efforts soient faits en ce sens).
+        \par Bien que Sage fournisse de nombreuses librairies mathématiques,
+        il n'inclut pas encore officiellement de librairie pour l'algèbre d'Ore.
+        Nous avons eu donc recours à une bibliothèque en cours de développement par
+        la communauté qui implémente l'algèbre d'Ore. % TODO ref papier/site
 \section{Méthodologie de travail, et progression}
     \label{sec:methodo}
     La première tâche à laquelle nous nous sommes attelés, a été de chercher à comprendre notre sujet
