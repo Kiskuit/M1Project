@@ -74,15 +74,16 @@
         avec la relation de récurrence, et les conditions initiales.
         Des exemples communs de suites p-récursives
         sont par exemple la suite de Fibonacci, ou la fonction factorielle.
-        \begin{eqnarray*}
-            \textnormal{Fibonacci : } u_{n+2} - u_{n+1} - u_n = 0, \quad F_0=0, F_1=1\\
-            \textnormal{Factorielle : } u_{n+1} - (n+1)*u_n = 0, \quad 0!=0
-        \end{eqnarray*}
+        \begin{align*}
+            \textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n &= 0, \qquad F_0=0, F_1=1\\
+            \textnormal{Factorielle : } (n+1)! - (n+1)u! &= 0, \qquad 0!=1
+        \end{align*}
         De plus, les suites p-récursives forment un aneau ({\color{red} Donner les détails?}).
         Dès lors, il semble pertinent
         de réaliser une implémentation utilisant ces propriétés mathématiques afin de
         manipuler et utiliser les suites p-récursives.\\
-        {\color{red} TODO : ore\_algebra what \& why}
+        {\color{red} TODO : ore\_algebra what \& why\\ Intro ore...} Pour le présent projet,
+        nous n'avons besoin que des notions traitant des suites p-récursives.
     \subsection{Python \& Sage}
         \label{ssec:sage}
         \par Sage est un outil de calcul formel libre.
@@ -104,7 +105,9 @@
         \par Bien que Sage fournisse de nombreuses librairies mathématiques,
         il n'inclut pas encore officiellement de librairie pour l'algèbre d'Ore.
         Nous avons eu donc recours à une bibliothèque en cours de développement par
-        la communauté qui implémente l'algèbre d'Ore. % TODO ref papier/site
+        la communauté qui implémente l'algèbre d'Ore. L'utilisation de cette bibliothèque
+        est présentée dans {\color{red} ref}.
+        % TODO ref papier/site
 \section{Méthodologie de travail, et progression}
     \label{sec:methodo}
     \par La première tâche à laquelle nous nous sommes attelés a été une recherche bibliographique,
