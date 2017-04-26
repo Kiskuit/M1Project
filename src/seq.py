@@ -11,36 +11,7 @@
 
 
 # General imports
-# TODO : sage import future print already if not mistaken
 from __future__ import print_function
-import sys
-
-# Project imports FAIT
-
-# >>> Ce n'est probablement pas une bonne idée d'avoir une exception « à
-# vous » ; il vaut mieux choisir l'exception que l'on déclenche en fonction de
-# la situation où on la déclenche. Souvent, une exception standard de Python
-# (TypeError, ZeroDivisionError...) fait l'affaire.
-
-# Ore_algebra import
-# Try to import ore_algebra if available
-# Just used for tests at uni
-
-# No longer needed
-#IS_ORE_ALGEBRA=True
-#try :
-#
-#    sys.path.insert(0,"../../ore_algebra-analytic/src")
-#    from sage.all import *
-#    from ore_algebra import *
-#except ImportError :
-#    PATH_TO_ORE = raw_input(("ore_algebra module was not found in working directory,\n"
-#        "please provide a path to ore_algebra module : "))
-#    try :
-#        sys.path.insert(0,PATH_TO_ORE)
-#        from ore_algebra import *
-#    except ImportError :
-#        IS_ORE_ALGEBRA=False
 
 # >>>> Ok pour l'instant, mais on évite généralement les "import *" dans du
 # code de bibliothèque propre.
@@ -124,13 +95,17 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         # >>> Envisagez éventuellement de passer les conditions initiales sous
         # forme de dictionnaire {indice: valeur} trié.
-        sorted_cond = {}
-        for key in sorted(cond):
-            sorted_cond[key] = cond[key]
+        #sorted_cond = {}
+        #for key in sorted(cond):
+        #    sorted_cond[key] = cond[key]
 
         self.cond_init = cond
-        self.cond_init_pos = Sequence(sorted_cond.keys(),use_sage_types=True)
-        self.cond_init_val = Sequence(sorted_cond.values(),use_sage_types=True)
+        # This makes sure it is sorted, no matter the hashset, do we need this tho'?
+        self.cond_init_pos = Sequence(sorted(cond.keys()), use_sage_types=True)
+        self.cond_init_val = Sequence([cond[key] for key in sorted(cond.keys())],
+                use_sage_types=True)
+        #self.cond_init_pos = Sequence(sorted_cond.keys(),use_sage_types=True)
+        #self.cond_init_val = Sequence(sorted_cond.values(),use_sage_types=True)
 
         #verification des indices de la suite
         if(self.cond_init_pos.universe() != ZZ):
@@ -159,33 +134,14 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
                 raise Exception("Initiallisation failed : Not enough initial value")
             i += 1
 
-        #------------
-
-        # >>> Je déconseille les noms d'attribut d'une lettre, on s'y perd
-        # vite -- self.order serait plus explicite. Mais vous n'avez peut-être
-        # même pas besoin de cet attribut : self.annihilator.order() marche
-        # aussi.
-        # >>> Attention aussi à ce que le nombre de conditions initiales n'est
-        # pas forcément égal à l'ordre de l'opérateur !
-
-        #------------
-
-        # >>> Je déconseille les noms d'attribut d'une lettre, on s'y perd
-        # vite -- self.order serait plus explicite. Mais vous n'avez peut-être
-        # même pas besoin de cet attribut : self.annihilator.order() marche
-        # aussi.
-        # >>> Attention aussi à ce que le nombre de conditions initiales n'est
-        # pas forcément égal à l'ordre de l'opérateur !
-
-
-
     # >>> Au lieu/en plus d'avoir une méthode to_list(), vous pourriez essayer
     # de gérer la syntaxe u[i:j] (ou même u[i:j:k]) dans __getitem__().
     def to_list(self,i):
         # copie des element a utiliser
+        # This may be unsorted!
         l = copy(self.cond_init)
-        l1 = copy(l.keys())
-        l2 = copy(l.values())
+        l1 = self.cond_init.keys()
+        l2 = self.cond_init.values()
 
         # si i est plus petit que le plus petit l'indice 
         if( i < self.cond_init_pos[0] ):
