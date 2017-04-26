@@ -121,12 +121,15 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         self.annihilator = annihilator
         #sauvegarde de l'ordre de la recurence
         self.order = annihilator.order()
-        # recherche si il y a des racines du polynome "dominant" qui sont
-        #superieur au plus petit element de la suite 
-        for elt in annihilator[annihilator.order()].roots():
-            if(elt[0].parent() == ZZ and elt[0] > self.cond_init_pos[0] and elt[0] not in self.cond_init_pos):
-                raise Exception("Initiallisation failed : Some initial value are Missing: ",elt[0])
 
+
+        # recherche si il y a des racines du polynome "dominant" qui sont
+        # superieur au plus petit element de la suite 
+        # recherche de racines sur ZZ, -> plus tard sur l'anneau des indice
+        for elt in annihilator[annihilator.order()].roots():
+                # root in ZZ            # if the root is use in the recurence index    # if it miss from cond initial
+            if(elt[0].parent() == ZZ and elt[0]+self.order > self.cond_init_pos[0] and elt[0]+self.order not in self.cond_init_pos):
+                raise Exception("Initiallisation failed : Some initial value are Missing: ",elt[0]+self.order)
         #calcul pour savoir si il y a assez de valeur initial
         i = 0
         while i < self.order-1:
@@ -140,8 +143,8 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # copie des element a utiliser
         # This may be unsorted!
         l = copy(self.cond_init)
-        l1 = self.cond_init.keys()
-        l2 = self.cond_init.values()
+        l1 = self.cond_init_pos
+        l2 = self.cond_init_val
 
         # si i est plus petit que le plus petit l'indice 
         if( i < self.cond_init_pos[0] ):
@@ -152,12 +155,19 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         end = 0
         while i > pos:
             pos += 1
-        if pos in l1:
-                ret += [l[pos]]
+            if pos in l1:
+                    # ret += [l2[l1.getindex(pos)]]
+                    ret += [l[pos]]
             else:
-                ret = self.annihilator.to_list(ret,len(ret)+1)
-            # print(ret)
-            
+                    ret = self.annihilator.to_list(ret,len(ret)+1)
+
+        # carriage if ret is too long
+        if len(ret) > 10:
+            cr_ = True
+        else:
+            cr_ = False
+
+        ret = Sequence(ret,cr = cr_,use_sage_types=True)
         return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
@@ -212,22 +222,33 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
     def next(self):
         pass
     #-----------end todo
-    def __str__(self):
-        return "P-recurcive suite"
     def __repr__(self):
-        _str = "initial conditon : "+str(self.cond_init)
-        _str += "\nrecurence : "+str(self.annihilator)
+        _str = "recurence : "+str(self.annihilator)+"\n"
+        _str += "value : "+str(self.to_list(9))+" ...\n"
         return "P-recurcive suite\n"+ _str
 
 if __name__ == "__main__" :
     #start examples
     # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
-    condition = {0:0,1:1,2:7,3:10,9:21}
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
-    a = Sn**2 -Sn - 1
-    S1 = PRecSequence(condition,a)
-    a = S1.to_list(100)
-    print(a,len(a))
+
+    condition = {0:0,1:1,2:7}
+    a1 = n*Sn**2 -Sn - 1
+    S1 = PRecSequence(condition,a1)
+
+    condition = {0:0,1:1,4:0}
+    a2 = (n-2)*Sn**2 -Sn - 1
+    S2 = PRecSequence(condition,a2)
+
+    condition = {0:0,1:1,2:2,13:100} #good initialisation
+    # condition = {0:0,1:1,2:2} # miss some value
+    a3 = (n-10)*Sn**3 + Sn**2 -Sn - 1
+    S3 = PRecSequence(condition,a3)
+    
+    print(S1.to_list(9))
+    print(S1)
+    print(S2.to_list(9))
+    print(S3.to_list(9))
 
     #end examples
