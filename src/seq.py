@@ -195,7 +195,10 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         return ret
 
     def compute(i):
-        pass #TODO
+        if i <= cond_init_pos[-1]:
+            return cond_init_val[i]
+        else:
+            pass # TODO forwardmatrix thingy
         
 
 
