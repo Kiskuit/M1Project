@@ -99,7 +99,7 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         #for key in sorted(cond):
         #    sorted_cond[key] = cond[key]
 
-        self.cond_init = cond
+        self.cond_init = cond.copy()
         # This makes sure it is sorted, no matter the hashset, do we need this tho'?
         self.cond_init_pos = Sequence(sorted(cond.keys()), use_sage_types=True)
         self.cond_init_val = Sequence([cond[key] for key in sorted(cond.keys())],
@@ -137,35 +137,56 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
     # >>> Au lieu/en plus d'avoir une méthode to_list(), vous pourriez essayer
     # de gérer la syntaxe u[i:j] (ou même u[i:j:k]) dans __getitem__().
     def to_list(self,i):
-        # copie des element a utiliser
-        # This may be unsorted!
-        l = copy(self.cond_init)
-        l1 = self.cond_init.keys()
-        l2 = self.cond_init.values()
+        ###   # copie des element a utiliser
+        ###   # This may be unsorted!
+        ###   l = copy(self.cond_init)
+        ###   l1 = self.cond_init.keys()
+        ###   l2 = self.cond_init.values()
 
-        # si i est plus petit que le plus petit l'indice 
-        if( i < self.cond_init_pos[0] ):
-            raise Exception("Unexpected Value Index")
-        #recupere l'index 
-        ret = l2[:self.order]
-        pos = l1[self.order-1]
-        end = 0
-        while i > pos:
-            pos += 1
-        if pos in l1:
-                ret += [l[pos]]
-            else:
-                ret = self.annihilator.to_list(ret,len(ret)+1)
-            # print(ret)
-            
-        return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
+        ###   # si i est plus petit que le plus petit l'indice 
+        ###   if( i < self.cond_init_pos[0] ):
+        ###       raise Exception("Unexpected Value Index")
+        ###   #recupere l'index 
+        ###   ret = l2[:self.order]
+        ###   pos = l1[self.order-1]
+        ###   end = 0
+        ###   while i > pos:
+        ###       pos += 1
+        ###   if pos in l1:
+        ###           ret += [l[pos]]
+        ###       else:
+        ###           ret = self.annihilator.to_list(ret,len(ret)+1)
+        ###       # print(ret)
+        ###       
+        ###   return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
+        if i < self.cond_init_pos[0]:
+            raise IndexError("i is too small")
+        return __getitem__ (self, slice(self.cond_init_pos[0], i))
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
     # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
     # signe que l'une devrait appeler l'autre ou qu'elles devraient appeler une
     # même méthode auxiliaire.
     def __getitem__(self,i):
-        pass #todo
+        # Get start, stop and step params
+        if type(i) == slice :
+            start = i.start
+            step = i.step
+            stop = i.stop
+        else :
+            start = i
+            stop = i+1
+            step = 1
+        ret = []
+        # Compute every item asked
+        for j in range(start, stop, step):
+            ret.append(self.compute(j))
+
+        return ret
+
+    def compute(i):
+        pass #TODO
+        
 
 
     def __add__(self,other):
@@ -194,8 +215,10 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         # return
         pass
+
     # def __mul__(self,other):
         pass #todo
+
     def is_const(self):
         #si la suite est d'ordre 1 et Un+1 - Un = 0 et que les conditions initiaux sont toutes egales
         if self.order == 1 and self.annihilator[0] != 0 and self.annihilator[0] == -self.annihilator[1]:
