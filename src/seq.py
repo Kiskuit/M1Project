@@ -170,8 +170,8 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         ###   ret = Sequence(ret,cr = cr_,use_sage_types=True)
         ###   return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
         if i < self.cond_init_pos[0] : 
-            raise Exception("i is too small!")
-        return __getitem__ (self, slice(self.cond_init_pos[0], i))
+            raise IndexError("i is too small!")
+        return self.__getitem__ (slice(self.cond_init_pos[0], i))
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
     # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
@@ -183,6 +183,8 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
             start = i.start
             step = i.step
             stop = i.stop
+            if not step:
+                step=1
         else :
             start = i
             stop = i+1
@@ -194,15 +196,15 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         return ret
 
-    def compute(i):
-        if i in cond_init_pos:
-            return cond_init_val[cond_init_pos.index(i)]
+    def compute(self,i):
+        if i in self.cond_init_pos:
+            return self.cond_init_val[self.cond_init_pos.index(i)]
         else:
             # If no degenerated values (TODO do it with degenerated vals)
             P,Q = self.annihilator.forward_matrix_bsplit (i,0)
             if Q==0:
                 raise Exception ("Degenerated value in the sequence")
-            return (P*Matrix([[e] for e in self.cond_init_val[:self.order])/Q)[0]
+            return (P*Matrix([[e] for e in self.cond_init_val[:self.order]])/Q)[0][0]
         
 
 
@@ -274,13 +276,13 @@ if __name__ == "__main__" :
     condition = {0:0,1:1}
     a4 = Sn**2 - Sn - 1
     S4 = PRecSequence(condition,a4)
+    print (S4[0:10])
     try :
         S2.to_list(-2)
     except IndexError as ie:
-        print "S2.to_list(-2) correctly raises an exception."
+        print ("S2.to_list(-2) correctly raises an exception.")
     else :
-        print "No exception : problem."
-    print (S4[0:10])
+        print ("No exception : problem.")
 
     condition = {0:0,1:1,2:2,13:100} #good initialisation
     # condition = {0:0,1:1,2:2} # miss some value
