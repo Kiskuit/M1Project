@@ -195,10 +195,14 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         return ret
 
     def compute(i):
-        if i <= cond_init_pos[-1]:
-            return cond_init_val[i]
+        if i in cond_init_pos:
+            return cond_init_val[cond_init_pos.index(i)]
         else:
-            pass # TODO forwardmatrix thingy
+            # If no degenerated values (TODO do it with degenerated vals)
+            P,Q = self.annihilator.forward_matrix_bsplit (i,0)
+            if Q==0:
+                raise Exception ("Degenerated value in the sequence")
+            return (P*Matrix([[e] for e in self.cond_init_val[:self.order])/Q)[0]
         
 
 
@@ -266,12 +270,17 @@ if __name__ == "__main__" :
     condition = {0:0,1:1,4:0}
     a2 = (n-2)*Sn**2 -Sn - 1
     S2 = PRecSequence(condition,a2)
+
+    condition = {0:0,1:1}
+    a4 = Sn**2 - Sn - 1
+    S4 = PRecSequence(condition,a4)
     try :
         S2.to_list(-2)
     except IndexError as ie:
         print "S2.to_list(-2) correctly raises an exception."
     else :
         print "No exception : problem."
+    print (S4[0:10])
 
     condition = {0:0,1:1,2:2,13:100} #good initialisation
     # condition = {0:0,1:1,2:2} # miss some value
