@@ -169,6 +169,9 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         ###   ret = Sequence(ret,cr = cr_,use_sage_types=True)
         ###   return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
+        if i < self.cond_init_pos[0] : 
+            raise Exception("i is too small!")
+        return __getitem__ (self, slice(self.cond_init_pos[0], i))
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
     # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
@@ -260,6 +263,12 @@ if __name__ == "__main__" :
     condition = {0:0,1:1,4:0}
     a2 = (n-2)*Sn**2 -Sn - 1
     S2 = PRecSequence(condition,a2)
+    try :
+        S2.to_list(-2)
+    except IndexError as ie:
+        print "S2.to_list(-2) correctly raises an exception."
+    else :
+        print "No exception : problem."
 
     condition = {0:0,1:1,2:2,13:100} #good initialisation
     # condition = {0:0,1:1,2:2} # miss some value
