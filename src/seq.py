@@ -142,47 +142,42 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         return self[start,stop]
         # return self.__getitem__ (slice(start, stop))
 
-    # >>> Évitez autant que possible la duplication de code. Ici, le code de
-    # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
-    # signe que l'une devrait appeler l'autre ou qu'elles devraient appeler une
-    # même méthode auxiliaire.
-    def __getitem__(self,i):
+    def __getitem__(self,sl):
         # Get start, stop and step params
-        if type(i) == slice :
-            start = i.start
-            step = i.step
-            stop = i.stop
+        if type(sl) == slice :
+            start = sl.start
+            step = sl.step
+            stop = sl.stop
             if not step:
                 step=1
         else :
-            start = i
-            stop = i+1
+            start = sl 
+            stop = sl+1
             step = 1
         ret = []
-        # Heuristic : for low values of start, recursive method is faster
-        #   than forward_matrix method.
+
+        # For low values of start, recursion is faster than forward_matrix
+        # TODO actual test to estimate the value at which the shift happen
         if start < 1000 :
             # Use recursive method
-            pass
+            vals = [cond_init[i] for i in sorted (cond_init.keys())]
+            ret = (self.annihilator.to_list(vals, start+1)[-order:]) # TODO check val of 'start' in case Sequence does not start at 0
         else :
-            # Use forward_matrix
-            pass
-        # Compute every item asked
-        for j in range(start, stop, step):
-            ret.append(self.compute(j))
+            vals = [cond_init[i] for i in sorted (cond_init.keys())]
+            P,Q = self.annihilator.forward_matrix_bsplit (start,0) # TODO chech params of forward_matrix too...
+            if Q==0:
+                # This should not happen since __init__ must look for problems !
+                #   (Or does it? is it really needed?)
+                raise Exception ("(THIS SHOULD NOT HAPPEN) Degenerated values in the sequence.")
+            for e in (P*Matrix[[f] for f in vals[-self.order:]])/Q :
+                ret += e
+
+         # ret[-order:] are just enough cond to do the recursion,
+         #  the final [order:] is to not duplicate elements that already are in ret
+         ret += self.annihilator.to_list(ret[-order:], stop-start)[order:]
+         # TODO handle step so to not return every element if not needed
 
         return ret
-
-    def compute(self,i):
-        if i in self.cond_init_pos:
-            return self.cond_init_val[self.cond_init_pos.index(i)]
-        else:
-            # If no degenerated values (TODO do it with degenerated vals)
-            P,Q = self.annihilator.forward_matrix_bsplit (i,0)
-            if Q==0:
-                raise Exception ("Degenerated value in the sequence")
-            return (P*Matrix([[e] for e in self.cond_init_val[:self.order]])/Q)[0][0]
-        
 
 
     def __add__(self,other):
