@@ -135,40 +135,12 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         """
         TODO doc
         """
-
-        ###   # copie des element a utiliser
-        ###   # This may be unsorted!
-        ###   l = copy(self.cond_init)
-        ###   l1 = self.cond_init_pos
-        ###   l2 = self.cond_init_val
-
-        ###   # si i est plus petit que le plus petit l'indice 
-        ###   if( i < self.cond_init_pos[0] ):
-        ###       raise Exception("Unexpected Value Index")
-        ###   #recupere l'index 
-        ###   ret = l2[:self.order]
-        ###   pos = l1[self.order-1]
-        ###   end = 0
-        ###   while i > pos:
-        ###       pos += 1
-        ###       if pos in l1:
-        ###               # ret += [l2[l1.getindex(pos)]]
-        ###               ret += [l[pos]]
-        ###       else:
-        ###               ret = self.annihilator.to_list(ret,len(ret)+1)
-
-        ###   # carriage if ret is too long
-        ###   if len(ret) > 10:
-        ###       cr_ = True
-        ###   else:
-        ###       cr_ = False
-
-        ###   ret = Sequence(ret,cr = cr_,use_sage_types=True)
-        ###   return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
         if stop < self.cond_init_pos[0] : 
             err_str = str(stop) + " is too small.")
             raise IndexError(err_str)
-        return self.__getitem__ (slice(self.cond_init_pos[0], i))
+        start = max (start, sorted(self.cond_init.keys())[0])
+        return self[start,stop]
+        # return self.__getitem__ (slice(start, stop))
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
     # to_list() et celui de __getitem__() se ressemblent beaucoup : c'est le
