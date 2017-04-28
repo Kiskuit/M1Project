@@ -1,0 +1,18 @@
+Une reflexion que je me suis faite : 
+    -Pour l'instant, l'utilisateur doit fournir des cond init
+de sorte à ce que toutes les racines soit "couvertes" pour pas avoir
+de problèmes dans les calculs si on tombe sur une racine.
+    Mais est-ce que c'est vraiment nécessaire? Prend la suite définie
+par (n-99999*Sn - 1, on est obligé de fournir un dico de cond init de taille
+99999, même si on ne veut que se servir des 200 premiers termes. C'est
+absurde, il vaut mieux lever une erreur quand l'utilisateur chercher à
+calculer un "élément interdit" parce qu'il n'a pas fourni assez de cond init.
+ 
+-------------------------------------------------------------------------------
+
+Sinon, les fonctionnalités mises a jour fonctionnent PLUS OU MOINS,
+sur le seul test que j'ai fait, j'ai bien un output de Fibonacci MAIS
+ce ne sont pas les termes que j'ai demandés ([3,5,8] au lieu de
+[8,13,21]). Il y a juste un petit problème aux niveau des indices dans getitem
+donc. J'ai pas eu le temps de régler le probleme, donc j'ai laissé en l'état.
+Occupe t-en si tu veux, sinon je le ferais des que je repasse dessus.

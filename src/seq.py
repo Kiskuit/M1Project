@@ -103,7 +103,8 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # the dict must contain conditions for every index in [min,max]
         self.cond_init = cond.copy()
         #verification des indices de la suite
-        if (Sequence(self.cond_init.keys(), use_sage_types=True) != ZZ) :
+        if (Sequence(self.cond_init.keys(), use_sage_types=True).universe()
+                != ZZ) :
             raise IndexError("Indices of the sequence must be integers")
 
         # récuperation de l'anneau des coeficient
@@ -120,11 +121,11 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         for root,_ in annihilator[annihilator.order()].roots():
             if (root.parent() == ZZ # Root is in ZZ
                     and root+self.order > sorted(self.cond_init.keys())[0] # Root isnt used for recurrence
-                    and root+self.order not in self.cond_init.keys()) # Root does not appear in cond_init
+                    and root+self.order not in self.cond_init.keys()) : # Root does not appear in cond_init
                 raise Exception("Initiallisation failed : Some initial value are Missing: ",root+self.order)
 
         # Check if there are enough initial conditions
-        l = len (self.conf_init)
+        l = len (self.cond_init)
         if l < self.order : 
             raise Exception ("Not enough initial conditions")
         # Check if all initial cond (according to heuristic) are specified
@@ -136,7 +137,7 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         TODO doc
         """
         if stop < self.cond_init_pos[0] : 
-            err_str = str(stop) + " is too small.")
+            err_str = str(stop) + " is too small."
             raise IndexError(err_str)
         start = max (start, sorted(self.cond_init.keys())[0])
         return self[start,stop]
@@ -160,8 +161,9 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # TODO actual test to estimate the value at which the shift happen
         if start < 1000 :
             # Use recursive method
-            vals = [cond_init[i] for i in sorted (cond_init.keys())]
-            ret = (self.annihilator.to_list(vals, start+1)[-order:]) # TODO check val of 'start' in case Sequence does not start at 0
+            vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
+            ret = (self.annihilator.to_list(vals, start+1)[-self.order:])
+            # TODO check val of 'start' in case Sequence does not start at 0
         else :
             vals = [cond_init[i] for i in sorted (cond_init.keys())]
             P,Q = self.annihilator.forward_matrix_bsplit (start,0) # TODO chech params of forward_matrix too...
@@ -169,13 +171,13 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
                 # This should not happen since __init__ must look for problems !
                 #   (Or does it? is it really needed?)
                 raise Exception ("(THIS SHOULD NOT HAPPEN) Degenerated values in the sequence.")
-            for e in (P*Matrix[[f] for f in vals[-self.order:]])/Q :
+            for e in (P*Matrix([[f] for f in vals[-self.order:]]))/Q :
                 ret += e
 
-         # ret[-order:] are just enough cond to do the recursion,
-         #  the final [order:] is to not duplicate elements that already are in ret
-         ret += self.annihilator.to_list(ret[-order:], stop-start)[order:]
-         # TODO handle step so to not return every element if not needed
+        # ret[-order:] are just enough cond to do the recursion,
+        #  the final [order:] is to not duplicate elements that already are in ret
+        ret += self.annihilator.to_list(ret[-self.order:], stop-start)[self.order:]
+        # TODO handle step so to not return every element if not needed
 
         return ret
 
@@ -236,34 +238,38 @@ if __name__ == "__main__" :
     # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
+    cond = {0:0, 1:1}
+    u1 = Sn**2 - Sn - 1
+    s1 = PRecSequence (cond, u1)
+    print (s1[5:8])
 
-    condition = {0:0,1:1,2:7}
-    a1 = n*Sn**2 -Sn - 1
-    S1 = PRecSequence(condition,a1)
+    ###   condition = {0:0,1:1,2:7}
+    ###   a1 = n*Sn**2 -Sn - 1
+    ###   S1 = PRecSequence(condition,a1)
 
-    condition = {0:0,1:1,4:0}
-    a2 = (n-2)*Sn**2 -Sn - 1
-    S2 = PRecSequence(condition,a2)
+    ###   condition = {0:0,1:1,4:0}
+    ###   a2 = (n-2)*Sn**2 -Sn - 1
+    ###   S2 = PRecSequence(condition,a2)
 
-    condition = {0:0,1:1}
-    a4 = Sn**2 - Sn - 1
-    S4 = PRecSequence(condition,a4)
-    print (S4[0:10])
-    try :
-        S2.to_list(-2)
-    except IndexError as ie:
-        print ("S2.to_list(-2) correctly raises an exception.")
-    else :
-        print ("No exception : problem.")
+    ###   condition = {0:0,1:1}
+    ###   a4 = Sn**2 - Sn - 1
+    ###   S4 = PRecSequence(condition,a4)
+    ###   print (S4[0:10])
+    ###   try :
+    ###       S2.to_list(-2)
+    ###   except IndexError as ie:
+    ###       print ("S2.to_list(-2) correctly raises an exception.")
+    ###   else :
+    ###       print ("No exception : problem.")
 
-    condition = {0:0,1:1,2:2,13:100} #good initialisation
-    # condition = {0:0,1:1,2:2} # miss some value
-    a3 = (n-10)*Sn**3 + Sn**2 -Sn - 1
-    S3 = PRecSequence(condition,a3)
-    
-    print(S1.to_list(9))
-    print(S1)
-    print(S2.to_list(9))
-    print(S3.to_list(9))
+    ###   condition = {0:0,1:1,2:2,13:100} #good initialisation
+    ###   # condition = {0:0,1:1,2:2} # miss some value
+    ###   a3 = (n-10)*Sn**3 + Sn**2 -Sn - 1
+    ###   S3 = PRecSequence(condition,a3)
+    ###   
+    ###   print(S1.to_list(9))
+    ###   print(S1)
+    ###   print(S2.to_list(9))
+    ###   print(S3.to_list(9))
 
     #end examples
