@@ -86,60 +86,56 @@ from ore_algebra import *
 #   - un moyen de calculer des suites du style u(3*n+2) à partir de u(n)...
 
 class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
+    """
+    TODO doc
+    """
 
     def __init__(self, cond, annihilator):
+        """
+        TODO doc
+        """
+        # TODO : init with only an int as param for constant sequences
+        #   + other heuristic concerning init cond
 
-        # >>> Comme discuté l'autre jour, prenez plutôt en entrée un opérateur,
-        # et utilisez les méthodes parent() et base_ring() pour récupérer les
-        # anneaux correspondants.
-
-        # >>> Envisagez éventuellement de passer les conditions initiales sous
-        # forme de dictionnaire {indice: valeur} trié.
-        #sorted_cond = {}
-        #for key in sorted(cond):
-        #    sorted_cond[key] = cond[key]
-
+        # Heuristic : The user can specify extra initial condition.
+        # Let ̀`min` and `max` be the lowest and greatest
+        # index of the initial condition, if he choses to specify extra cond
+        # the dict must contain conditions for every index in [min,max]
         self.cond_init = cond.copy()
-        # This makes sure it is sorted, no matter the hashset, do we need this tho'?
-        self.cond_init_pos = Sequence(sorted(cond.keys()), use_sage_types=True)
-        self.cond_init_val = Sequence([cond[key] for key in sorted(cond.keys())],
-                use_sage_types=True)
-        #self.cond_init_pos = Sequence(sorted_cond.keys(),use_sage_types=True)
-        #self.cond_init_val = Sequence(sorted_cond.values(),use_sage_types=True)
-
         #verification des indices de la suite
-        if(self.cond_init_pos.universe() != ZZ):
-            raise Exception("Index value error: index must be a Integer")
+        if (Sequence(self.cond_init.keys(), use_sage_types=True) != ZZ) :
+            raise IndexError("Indices of the sequence must be integers")
 
         # récuperation de l'anneau des coeficient
         self.base_ring = annihilator.base_ring()
-
         # récuperation de l'operateur de récurence 
-        self.operator = annihilator.parent().gen()
-
+        self.gen = annihilator.parent().gen()
         # sauvegarde de l'annihilateur de la suite
         self.annihilator = annihilator
         #sauvegarde de l'ordre de la recurence
         self.order = annihilator.order()
 
-
         # recherche si il y a des racines du polynome "dominant" qui sont
         # superieur au plus petit element de la suite 
-        # recherche de racines sur ZZ, -> plus tard sur l'anneau des indice
-        for elt in annihilator[annihilator.order()].roots():
-                # root in ZZ            # if the root is use in the recurence index    # if it miss from cond initial
-            if(elt[0].parent() == ZZ and elt[0]+self.order > self.cond_init_pos[0] and elt[0]+self.order not in self.cond_init_pos):
-                raise Exception("Initiallisation failed : Some initial value are Missing: ",elt[0]+self.order)
-        #calcul pour savoir si il y a assez de valeur initial
-        i = 0
-        while i < self.order-1:
-            if self.cond_init_pos[i] +1 != self.cond_init_pos[i+1]:
-                raise Exception("Initiallisation failed : Not enough initial value")
-            i += 1
+        for root,_ in annihilator[annihilator.order()].roots():
+            if (root.parent() == ZZ # Root is in ZZ
+                    and root+self.order > sorted(self.cond_init.keys())[0] # Root isnt used for recurrence
+                    and root+self.order not in self.cond_init.keys()) # Root does not appear in cond_init
+                raise Exception("Initiallisation failed : Some initial value are Missing: ",root+self.order)
 
-    # >>> Au lieu/en plus d'avoir une méthode to_list(), vous pourriez essayer
-    # de gérer la syntaxe u[i:j] (ou même u[i:j:k]) dans __getitem__().
-    def to_list(self,i):
+        # Check if there are enough initial conditions
+        l = len (self.conf_init)
+        if l < self.order : 
+            raise Exception ("Not enough initial conditions")
+        # Check if all initial cond (according to heuristic) are specified
+        if self.cond_init.keys()[0] + l - 1 != self.cond_init.keys()[-1]: 
+            raise Exception ("Initial condition must be on an interval")
+
+    def to_list(self, stop, start=0):
+        """
+        TODO doc
+        """
+
         ###   # copie des element a utiliser
         ###   # This may be unsorted!
         ###   l = copy(self.cond_init)
@@ -169,8 +165,9 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         ###   ret = Sequence(ret,cr = cr_,use_sage_types=True)
         ###   return ret#renvoie une liste de tous les elements de la suite avec comme dernier u[i]
-        if i < self.cond_init_pos[0] : 
-            raise IndexError("i is too small!")
+        if stop < self.cond_init_pos[0] : 
+            err_str = str(stop) + " is too small.")
+            raise IndexError(err_str)
         return self.__getitem__ (slice(self.cond_init_pos[0], i))
 
     # >>> Évitez autant que possible la duplication de code. Ici, le code de
@@ -190,6 +187,14 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
             stop = i+1
             step = 1
         ret = []
+        # Heuristic : for low values of start, recursive method is faster
+        #   than forward_matrix method.
+        if start < 1000 :
+            # Use recursive method
+            pass
+        else :
+            # Use forward_matrix
+            pass
         # Compute every item asked
         for j in range(start, stop, step):
             ret.append(self.compute(j))
