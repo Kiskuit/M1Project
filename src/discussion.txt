@@ -8,6 +8,7 @@ par (n-99999*Sn - 1, on est obligé de fournir un dico de cond init de taille
 absurde, il vaut mieux lever une erreur quand l'utilisateur chercher à
 calculer un "élément interdit" parce qu'il n'a pas fourni assez de cond init.
  
+ #es-ce utile de garder un dico? un liste serais pas mieux ?
 -------------------------------------------------------------------------------
 
 Sinon, les fonctionnalités mises a jour fonctionnent PLUS OU MOINS,
@@ -16,3 +17,10 @@ ce ne sont pas les termes que j'ai demandés ([3,5,8] au lieu de
 [8,13,21]). Il y a juste un petit problème aux niveau des indices dans getitem
 donc. J'ai pas eu le temps de régler le probleme, donc j'ai laissé en l'état.
 Occupe t-en si tu veux, sinon je le ferais des que je repasse dessus.
+
+#problème resolue je pense
+-------------------------------------------------------------------------------
+
+Que faire si start > stop? ipython renvoie une liste vide
+
+-------------------------------------------------------------------------------

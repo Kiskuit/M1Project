@@ -118,11 +118,11 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         # recherche si il y a des racines du polynome "dominant" qui sont
         # superieur au plus petit element de la suite 
-        for root,_ in annihilator[annihilator.order()].roots():
-            if (root.parent() == ZZ # Root is in ZZ
-                    and root+self.order > sorted(self.cond_init.keys())[0] # Root isnt used for recurrence
-                    and root+self.order not in self.cond_init.keys()) : # Root does not appear in cond_init
-                raise Exception("Initiallisation failed : Some initial value are Missing: ",root+self.order)
+        # for root,_ in annihilator[annihilator.order()].roots():
+        #     if (root.parent() == ZZ # Root is in NN
+        #             and root+self.order > sorted(self.cond_init.keys())[0] # Root isnt used for recurrence
+        #             and root+self.order not in self.cond_init.keys()) : # Root does not appear in cond_init
+        #         raise Exception("Initiallisation failed : Some initial value are Missing: ",root+self.order)
 
         # Check if there are enough initial conditions
         l = len (self.cond_init)
@@ -162,11 +162,15 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         if start < 1000 :
             # Use recursive method
             vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
-            ret = (self.annihilator.to_list(vals, start+1)[-self.order:])
+            if(start < len(vals) - self.order):
+                ret = vals[start:]
+            else:
+                ret = (self.annihilator.to_list(vals, start+self.order)[-self.order:])
             # TODO check val of 'start' in case Sequence does not start at 0
         else :
-            vals = [cond_init[i] for i in sorted (cond_init.keys())]
-            P,Q = self.annihilator.forward_matrix_bsplit (start,0) # TODO chech params of forward_matrix too...
+            vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
+            P,Q = self.annihilator.forward_matrix_bsplit (start-(len(vals)-self.order),len(vals)-self.order) 
+            # TODO chech params of forward_matrix too...
             if Q==0:
                 # This should not happen since __init__ must look for problems !
                 #   (Or does it? is it really needed?)
@@ -176,7 +180,7 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         # ret[-order:] are just enough cond to do the recursion,
         #  the final [order:] is to not duplicate elements that already are in ret
-        ret += self.annihilator.to_list(ret[-self.order:], stop-start)[self.order:]
+        ret = self.annihilator.to_list(ret, stop-start,start)[:stop-start:step]
         # TODO handle step so to not return every element if not needed
 
         return ret
@@ -236,12 +240,26 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 if __name__ == "__main__" :
     #start examples
     # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
+
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
-    cond = {0:0, 1:1}
-    u1 = Sn**2 - Sn - 1
+    cond = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
+    # u1 = (n-1)*(n-2)*Sn**3 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
+    u1 = (n-1)*(n-2)*Sn**2 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
     s1 = PRecSequence (cond, u1)
-    print (s1[5:8])
+
+    cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
+    u2 = Sn**2 - Sn - 1
+    fib = PRecSequence (cond2, u2)
+
+    print("s1:")
+    print (s1[20:23])
+    print (s1[8:10])
+    a = Sequence(s1[1001:1004],cr = True)
+    print (a)
+    
+    print("fib:")
+    print(fib[0:10])
 
     ###   condition = {0:0,1:1,2:7}
     ###   a1 = n*Sn**2 -Sn - 1
