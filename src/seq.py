@@ -101,11 +101,18 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # Let ̀`min` and `max` be the lowest and greatest
         # index of the initial condition, if he choses to specify extra cond
         # the dict must contain conditions for every index in [min,max]
-        self.cond_init = cond.copy()
+        if( type(cond) == list):
+             self.cond_init = {i:cond[i] for i in range(0,len(cond))}
+        elif(type(cond) == dict):
+            self.cond_init = cond.copy()
+        else:
+            raise TypeError("Illegal initial value object")
+
+
         #verification des indices de la suite
         if (Sequence(self.cond_init.keys(), use_sage_types=True).universe()
                 != ZZ) :
-            raise IndexError("Indices of the sequence must be integers")
+            raise TypeError("Indices of the sequence must be integers")
 
         # récuperation de l'anneau des coeficient
         self.base_ring = annihilator.base_ring()
@@ -127,7 +134,7 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # Check if there are enough initial conditions
         l = len (self.cond_init)
         if l < self.order : 
-            raise Exception ("Not enough initial conditions")
+            raise Exception ("Not enough initial conditions",l)
         # Check if all initial cond (according to heuristic) are specified
         if self.cond_init.keys()[0] + l - 1 != self.cond_init.keys()[-1]: 
             raise Exception ("Initial condition must be on an interval")
@@ -136,11 +143,12 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         """
         TODO doc
         """
-        if stop < self.cond_init_pos[0] : 
+
+        if stop < min(self.cond_init.keys()): 
             err_str = str(stop) + " is too small."
             raise IndexError(err_str)
         start = max (start, sorted(self.cond_init.keys())[0])
-        return self[start,stop]
+        return self[start:stop]
         # return self.__getitem__ (slice(start, stop))
 
     def __getitem__(self,sl):
@@ -193,28 +201,48 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # violente. Il vaut probablement mieux déclencher une erreur si les
         # deux annulateurs n'ont pas le même parent, ou à la rigueur utiliser
         # self.R.coerce().
-        new_annihilator = list(self.annihilator.lclm(self.R.coerce(other.annihilator)))
-
+        new_annihilator = self.annihilator.lclm(other.annihilator)
+        # print(new_annihilator)
         #find degenerative case
-        needed_root = new_annihilator[-1].roots()
-        needed_root = [elt[0] for elt in needed_root]
+        needed_root = new_annihilator[order(new_annihilator)].roots()
+        len_cond  = max(new_annihilator.order()+1,
+                        max([0] + [elt[0]+new_annihilator.order()+1 for elt in needed_root if(elt[0].parent() == ZZ 
+                                                                                        and elt >= 0 )]))
 
         #---------todo
-        #regarder les indices minimau pour ajuster la somme
-        #find initial condition for the add
-        # cond1 = self.to_list(len(new_annihilator)-1)
-        # cond2 = other.to_list(len(new_annihilator)-1)
+        #catch enough root befor add
+        cond1 = self.to_list(max(len_cond,order(new_annihilator),len(self.cond_init.keys()) ))
+        cond2 = other.to_list(max(len_cond,order(new_annihilator),len(other.cond_init.keys())))
         #do the sum pairwise
-        # new_cond = [sum(x) for x in zip(cond1, cond2)]
+        new_cond = [sum(x) for x in zip(cond1, cond2)]
         #---------end todo
 
         #create a new PRecSequence todo
 
-        # return
-        pass
+        return PRecSequence(new_cond,new_annihilator)
+        # pass
 
-    # def __mul__(self,other):
-        pass #todo
+    def __mul__(self,other):
+        # new_annihilator = self.annihilator.symmetric_product(other.annihilator)
+        # print(new_annihilator)
+        # #find degenerative case
+        # needed_root = new_annihilator[order(new_annihilator)].roots() # BIZARRE a demander au prof
+        # len_cond  = max(new_annihilator.order()+1,
+        #                 max([0] + [elt[0]+new_annihilator.order()+1 for elt in needed_root if(elt[0].parent() == ZZ 
+        #                                                                                 and elt >= 0 )]))
+
+        # #---------todo
+        # #catch enough root befor add
+        # cond1 = self.to_list(max(len_cond,order(new_annihilator),len(self.cond_init.keys()) ))
+        # cond2 = other.to_list(max(len_cond,order(new_annihilator),len(other.cond_init.keys())))
+        # #do the sum pairwise
+        # new_cond = [x*y for x,y in zip(cond1, cond2)]
+        # #---------end todo
+
+        # #create a new PRecSequence todo
+
+        # return PRecSequence(new_cond,new_annihilator)
+        pass
 
     def is_const(self):
         #si la suite est d'ordre 1 et Un+1 - Un = 0 et que les conditions initiaux sont toutes egales
@@ -249,17 +277,34 @@ if __name__ == "__main__" :
     s1 = PRecSequence (cond, u1)
 
     cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
-    u2 = Sn**2 - Sn - 1
+    # u2 = Sn**2 - Sn - 1
+    u2 = R.random_element()
     fib = PRecSequence (cond2, u2)
 
-    print("s1:")
-    print (s1[20:23])
-    print (s1[8:10])
+    cond3 = [0,1,2,2,10,13,20]
+    # u3 = Sn - n -1
+    u3 = R.random_element()
+    fact = PRecSequence (cond3, u3)
+
+    # print("s1:")
+    # print (s1[20:23])
+    # print (s1[8:10])
     a = Sequence(s1[1001:1004],cr = True)
-    print (a)
+    # print (a)
     
     print("fib:")
     print(fib[0:10])
+
+    print("fact")
+    print(fact[0:10])
+
+    fibfact = fib + fact
+    print("somme")
+    print(fibfact[0:15])
+
+    # fibFact = fib * fact
+    # print("mult")
+    # print(fibFact[0:15])
 
     ###   condition = {0:0,1:1,2:7}
     ###   a1 = n*Sn**2 -Sn - 1
