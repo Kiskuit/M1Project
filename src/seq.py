@@ -276,14 +276,6 @@ def guessSequence(data,Ore):
     except e:
         raise e
 
-def guessSequence(data,Ore):
-    if not Ore.is_S():
-        raise Exception("You don't use the Shift operator in OreAlgebra")
-    try:
-        L = guess(data,Ore)
-        return -L
-    except e:
-        raise e
 if __name__ == "__main__" :
     #start examples
     # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
