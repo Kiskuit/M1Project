@@ -9,7 +9,6 @@
 #   with p-recursive sequences in Sage/Python
 # ---------------------------------------------------------
 
-
 # General imports
 from __future__ import print_function
 
@@ -64,7 +63,7 @@ from ore_algebra import *
 #   - des opérations de décalage (__lshift__(), éventuellement __rshift__()
 #     avec une sémantique à clarifier),
 #   - un test d'égalité (__eq__(), __ne__(), éventuellement __nonzero__()),
-#   - un test de si une suite est constante,  FAIT
+#   - un test de si une suite est constante,  
 #   - un itérateur infini, qui produit des termes de la suite à volonté
 #     (__iter__()),
 #   - un constructeur produisant une suite constante (pour l'instant dans une
@@ -84,6 +83,9 @@ from ore_algebra import *
 #   - un constructeur (fonction séparée) qui fabrique une suite à partir d'une
 #     expression sage du genre factorial(n)*2^n + n,
 #   - un moyen de calculer des suites du style u(3*n+2) à partir de u(n)...
+
+
+
 
 class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
     """
@@ -118,6 +120,8 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         self.base_ring = annihilator.base_ring()
         # récuperation de l'operateur de récurence 
         self.gen = annihilator.parent().gen()
+        # Récupération du parent
+        self.parent = annihilator.parent()
         # sauvegarde de l'annihilateur de la suite
         self.annihilator = annihilator
         #sauvegarde de l'ordre de la recurence
@@ -201,109 +205,160 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # violente. Il vaut probablement mieux déclencher une erreur si les
         # deux annulateurs n'ont pas le même parent, ou à la rigueur utiliser
         # self.R.coerce().
-        new_annihilator = self.annihilator.lclm(other.annihilator)
+        #(R est devenu parent depuis)
+        new_annihilator = self.annihilator.lclm(self.parent(other.annihilator))
         # print(new_annihilator)
+
         #find degenerative case
-        needed_root = new_annihilator[order(new_annihilator)].roots()
+        try:
+            needed_root = new_annihilator[order(new_annihilator)].roots()
+        except AttributeError:
+            needed_root = []
+
+        #max between order and the bigest root in ZZ
         len_cond  = max(new_annihilator.order()+1,
                         max([0] + [elt[0]+new_annihilator.order()+1 for elt in needed_root if(elt[0].parent() == ZZ 
                                                                                         and elt >= 0 )]))
 
-        #---------todo
-        #catch enough root befor add
+        #compute enough value add Sequence
         cond1 = self.to_list(max(len_cond,order(new_annihilator),len(self.cond_init.keys()) ))
         cond2 = other.to_list(max(len_cond,order(new_annihilator),len(other.cond_init.keys())))
-        #do the sum pairwise
-        new_cond = [sum(x) for x in zip(cond1, cond2)]
-        #---------end todo
 
-        #create a new PRecSequence todo
+
+        new_cond = [sum(x) for x in zip(cond1, cond2)]
 
         return PRecSequence(new_cond,new_annihilator)
         # pass
 
     def __mul__(self,other):
-        # new_annihilator = self.annihilator.symmetric_product(other.annihilator)
-        # print(new_annihilator)
-        # #find degenerative case
-        # needed_root = new_annihilator[order(new_annihilator)].roots() # BIZARRE a demander au prof
-        # len_cond  = max(new_annihilator.order()+1,
-        #                 max([0] + [elt[0]+new_annihilator.order()+1 for elt in needed_root if(elt[0].parent() == ZZ 
-        #                                                                                 and elt >= 0 )]))
+        new_annihilator = self.annihilator.symmetric_product(self.parent(other.annihilator))
 
-        # #---------todo
-        # #catch enough root befor add
-        # cond1 = self.to_list(max(len_cond,order(new_annihilator),len(self.cond_init.keys()) ))
-        # cond2 = other.to_list(max(len_cond,order(new_annihilator),len(other.cond_init.keys())))
-        # #do the sum pairwise
-        # new_cond = [x*y for x,y in zip(cond1, cond2)]
-        # #---------end todo
+        #find degenerative case
+        try:
+            needed_root = new_annihilator[order(new_annihilator)].roots() # BIZARRE a demander au prof
+        except AttributeError:
+            #if no 
+            needed_root = []
+        #max between order and the bigest root in ZZ
+        len_cond  = max(new_annihilator.order()+1,
+                        max([0] + [elt[0]+new_annihilator.order()+1 for elt in needed_root if(elt[0].parent() == ZZ 
+                                                                                        and elt >= 0 )]))
 
-        # #create a new PRecSequence todo
+        #compute enough value mult Sequence
+        cond1 = self.to_list(max(len_cond,order(new_annihilator),len(self.cond_init.keys()) ))
+        cond2 = other.to_list(max(len_cond,order(new_annihilator),len(other.cond_init.keys())))
+        
+        new_cond = [x*y for x,y in zip(cond1, cond2)]
 
-        # return PRecSequence(new_cond,new_annihilator)
-        pass
+        return PRecSequence(new_cond,new_annihilator)
 
     def is_const(self):
-        #si la suite est d'ordre 1 et Un+1 - Un = 0 et que les conditions initiaux sont toutes egales
-        if self.order == 1 and self.annihilator[0] != 0 and self.annihilator[0] == -self.annihilator[1]:
-            val = self.cond.values()[0]
-            for i in self.cond.values():
-                if val != i:
-                    return False
+        print(self.cond_init.values())
+        for i in self.cond_init.values():
+            if(i != self.cond_init.values()[0]):
+                return False
+        #compute enough value
+        tab = self.to_list(2*self.order,self.order)
+        print(tab)
+        for elt in tab:
+            if(elt != self.cond_init.values()[0]):
+                return False
+        #if is const change self with a reduction????
+
+        #------------------
         return True
 
-
-    #-----------todo
+    #-----------todo------------
     def __iter__(self):
         return self
 
     def next(self):
         pass
-    #-----------end todo
+    #-----------end todo--------
     def __repr__(self):
         _str = "recurence : "+str(self.annihilator)+"\n"
         _str += "value : "+str(self.to_list(9))+" ...\n"
         return "P-recurcive suite\n"+ _str
 
-
 def guessSequence(data,Ore):
     if not Ore.is_S():
         raise Exception("You don't use the Shift operator in OreAlgebra")
-    try:
         L = guess(data,Ore)
         return -L
-    except e:
-        raise e
+def ExprToSeq(expression):#some issue here , fix that asap
+    if( type(expression) != sage.symbolic.expression.Expression):
+        raise TypeError("this is not an sage.symbolic.expression.Expression this is ",type(expression))
+    i = 10
+    cont = True
+    while(cont):
+        try:
+            val = [expression(a) for a in range(0,i)]
+            a = Sequence([val],use_sage_types= True)
+            base_ring = a.universe()
+            print(base_ring)
+            A,n = base_ring["x"].objgen()
+            R,Sn = OreAlgebra(A,"Sx").objgen()
+            Seq = guessSequence(val,R)
+            return Seq 
+        except ValueError:
+            i+= 10
+            #maybe there is an other way to stop ?  
+            #we really need to leave ? or we can continue to find a recurence
+            if(i <= 100):
+                continue
+            else:
+                cont = False
 
-def guessSequence(data,Ore):
-    if not Ore.is_S():
-        raise Exception("You don't use the Shift operator in OreAlgebra")
-    try:
-        L = guess(data,Ore)
-        return -L
-    except e:
-        raise e
+
+
+
+
+
+def constPRecSequence(val):
+    #----until we find a best way to do that---
+    a = Sequence([val],use_sage_types= True)
+    base_ring = a[0].parent()
+    #------------------------------------------
+    A,n = base_ring["x"].objgen()
+    R,Sn = OreAlgebra(A,"Sx").objgen()
+    const = Sn - 1
+
+    return PRecSequence([val],const)    
+
+
+
+
 if __name__ == "__main__" :
     #start examples
     # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
 
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
+
+
+    A2,x = ZZ["x"].objgen()
+    R2,Sx = OreAlgebra(A2,"Sx").objgen()
+
+
     cond = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
     # u1 = (n-1)*(n-2)*Sn**3 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
     u1 = (n-1)*(n-2)*Sn**2 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
     s1 = PRecSequence (cond, u1)
 
     cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
-    # u2 = Sn**2 - Sn - 1
-    u2 = R.random_element()
+    u2 = Sn**2 - Sn - 1
+    # u2 = R.random_element()
     fib = PRecSequence (cond2, u2)
 
-    cond3 = [0,1,2,2,10,13,20]
-    # u3 = Sn - n -1
-    u3 = R.random_element()
+    cond3 = [1]
+    u3 = Sn - n -1
+    # u3 = R.random_element()
     fact = PRecSequence (cond3, u3)
+
+    constS = constPRecSequence(2)
+    c1 = Sn**8 - 4*Sn**7 + 6*Sn**6 - 4*Sn**5 + Sn**4
+    condc = [2,2,2,2,2,2,2,2]
+    const2 = PRecSequence(condc,c1)
 
     # print("s1:")
     # print (s1[20:23])
@@ -318,13 +373,27 @@ if __name__ == "__main__" :
     print(fact[0:10])
 
     fibfact = fib + fact
-    print("somme")
+    print("somme (fib+fact)")
     print(fibfact[0:15])
 
-    # fibFact = fib * fact
-    # print("mult")
-    # print(fibFact[0:15])
+    print("const")
+    print(constS[0:15])
 
+    cfib = fib+constS
+    print("somme (fib+2)")
+    print(cfib[0:15])    
+
+    fibFact = fib * fact
+    print("mult")
+    print(fibFact[0:15])
+
+    print("fib const?",fib.is_const())
+    print("constS const?",constS.is_const())
+    print("const2 const?",const2.is_const())
+
+    exp = factorial(n)
+    seq = ExprToSeq(exp)
+    print(seq[0:10])
     ###   condition = {0:0,1:1,2:7}
     ###   a1 = n*Sn**2 -Sn - 1
     ###   S1 = PRecSequence(condition,a1)
