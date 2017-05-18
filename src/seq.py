@@ -285,17 +285,21 @@ def guessSequence(data,Ore):
         raise Exception("You don't use the Shift operator in OreAlgebra")
         L = guess(data,Ore)
         return -L
-def ExprToSeq(expression):#some issue here , fix that asap
+def ExprToSeq(expression):
     if( type(expression) != sage.symbolic.expression.Expression):
         raise TypeError("this is not an sage.symbolic.expression.Expression this is ",type(expression))
+    if(len(expression.args()) > 1 ):
+        raise TypeError("Can treat Expression with multiple variable")
     i = 10
     cont = True
     while(cont):
         try:
-            val = [expression(a) for a in range(0,i)]
-            a = Sequence([val],use_sage_types= True)
+            n = (expression.args()[0])
+            val = [expression(n=a) for a in range(0,i)]
+            a = Sequence(val)
             base_ring = a.universe()
             print(base_ring)
+            #wrong basering fo now, need some help
             A,n = base_ring["x"].objgen()
             R,Sn = OreAlgebra(A,"Sx").objgen()
             Seq = guessSequence(val,R)
