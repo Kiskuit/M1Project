@@ -131,17 +131,20 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
             # TODO verbose error exception
 
 
-    def to_list(self, stop, start=0):
+    def to_list(self, stop, start=None):
         """
         TODO doc
         """
 
-        if stop < min(self.cond_init.keys()): 
-            err_str = str(stop) + " is too small."
+        # start/stop cannot be lower than lowest index
+        lowest = min(self.cond_init.keys())
+        if not start :
+            start = lowest
+        if stop < lowest || start < lowest :
+            err_str = "Index out of bond, indices cannot be lower than "
+            err_str += str(lowest) + "."
             raise IndexError(err_str)
-        start = max (start, sorted(self.cond_init.keys())[0])
         return self[start:stop]
-        # return self.__getitem__ (slice(start, stop))
 
     def __getitem__(self,sl):
         # Get start, stop and step params
