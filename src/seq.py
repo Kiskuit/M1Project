@@ -99,49 +99,37 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # TODO : init with only an int as param for constant sequences
         #   + other heuristic concerning init cond
 
-        # Heuristic : The user can specify extra initial condition.
-        # Let ̀`min` and `max` be the lowest and greatest
-        # index of the initial condition, if he choses to specify extra cond
-        # the dict must contain conditions for every index in [min,max]
-        if( type(cond) == list):
+        if (type(cond) == list): # The argument is a list
              self.cond_init = {i:cond[i] for i in range(0,len(cond))}
-        elif(type(cond) == dict):
+        elif (type(cond) == dict): # The argument is a dict
             self.cond_init = cond.copy()
         else:
             raise TypeError("Illegal initial value object")
 
 
-        #verification des indices de la suite
+        # verification des indices de la suite
         if (Sequence(self.cond_init.keys(), use_sage_types=True).universe()
                 != ZZ) :
             raise TypeError("Indices of the sequence must be integers")
 
+        # sauvegarde de l'annihilateur de la suite
+        self.annihilator = annihilator
+        # sauvegarde de l'ordre de la recurence
+        self.order = annihilator.order()
         # récuperation de l'anneau des coeficient
         self.base_ring = annihilator.base_ring()
-        # récuperation de l'operateur de récurence 
+
+        # récuperation de l'operateur de récurence
         self.gen = annihilator.parent().gen()
         # Récupération du parent
         self.parent = annihilator.parent()
-        # sauvegarde de l'annihilateur de la suite
-        self.annihilator = annihilator
-        #sauvegarde de l'ordre de la recurence
-        self.order = annihilator.order()
-
-        # recherche si il y a des racines du polynome "dominant" qui sont
-        # superieur au plus petit element de la suite 
-        # for root,_ in annihilator[annihilator.order()].roots():
-        #     if (root.parent() == ZZ # Root is in NN
-        #             and root+self.order > sorted(self.cond_init.keys())[0] # Root isnt used for recurrence
-        #             and root+self.order not in self.cond_init.keys()) : # Root does not appear in cond_init
-        #         raise Exception("Initiallisation failed : Some initial value are Missing: ",root+self.order)
 
         # Check if there are enough initial conditions
         l = len (self.cond_init)
         if l < self.order : 
             raise Exception ("Not enough initial conditions",l)
-        # Check if all initial cond (according to heuristic) are specified
-        if self.cond_init.keys()[0] + l - 1 != self.cond_init.keys()[-1]: 
-            raise Exception ("Initial condition must be on an interval")
+            # TODO verbose error exception
+
 
     def to_list(self, stop, start=0):
         """
