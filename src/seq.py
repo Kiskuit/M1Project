@@ -140,7 +140,7 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         lowest = min(self.cond_init.keys())
         if not start :
             start = lowest
-        if stop < lowest || start < lowest :
+        if stop <= lowest || start < lowest :
             err_str = "Index out of bond, indices cannot be lower than "
             err_str += str(lowest) + "."
             raise IndexError(err_str)
@@ -162,6 +162,7 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
 
         # For low values of start, recursion is faster than forward_matrix
         # TODO actual test to estimate the value at which the shift happen
+        # TODO check value in dict
         if start < 1000 :
             # Use recursive method
             vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
