@@ -87,17 +87,25 @@ from ore_algebra import *
 
 
 
-class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
+class PRecSequence(object):
     """
     TODO doc
     """
 
-    def __init__(self, cond, annihilator):
+    def __init__(self, cond=None, annihilator=None, const=None):
         """
         TODO doc
         """
-        # TODO : init with only an int as param for constant sequences
-        #   + other heuristic concerning init cond
+        # TODO : use @classmethod instead?
+        if const:
+            if cond or annihilator:
+                raise Exception("Constant sequences must be initialized only with
+                its constant value.")
+                cond = {0:const}
+            # annihilator = Sn
+            # TODO make const annihilator
+            # TODO in case of addition u_n + const, use this part of the constructor
+            
 
         if (type(cond) == list): # The argument is a list
              self.cond_init = {i:cond[i] for i in range(0,len(cond))}
@@ -127,27 +135,33 @@ class PRecSequence(object): # >>> PRecSequence(object) (bizarrerie Python)
         # Check if there are enough initial conditions
         l = len (self.cond_init)
         if l < self.order : 
-            raise Exception ("Not enough initial conditions",l)
-            # TODO verbose error exception
+            err_string = "Not enough initial conditions."
+            err_string += "Please provide at least " + order + "conditions"
+            err_string += "(Only "+l+"provided)."
+            raise Exception (err_string)
+            # TODO check if param l were used when catching excn
 
 
     def to_list(self, stop, start=None):
         """
         TODO doc
         """
+        # TODO provide support for step?
 
-        # start/stop cannot be lower than lowest index
         lowest = min(self.cond_init.keys())
         if not start :
             start = lowest
+        # start/stop cannot be lower than lowest index
         if stop <= lowest || start < lowest :
             err_str = "Index out of bond, indices cannot be lower than "
             err_str += str(lowest) + "."
             raise IndexError(err_str)
         return self[start:stop]
 
+
     def __getitem__(self,sl):
         # Get start, stop and step params
+        # TODO check if isinstance is better?
         if type(sl) == slice :
             start = sl.start
             step = sl.step
