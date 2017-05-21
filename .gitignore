@@ -97,3 +97,4 @@ ENV/
 # TeX files
 *.aux
 *.out
+*.toc
