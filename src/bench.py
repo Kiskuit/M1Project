@@ -1,17 +1,16 @@
 from __future__ import print_function
 
 import time
+import csv
 from sage.all import *
 from ore_algebra import *
 
 if __name__ == "__main__":
+    # TODO What is 2nd param of forward_matrix for?
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
 
     fibo = Sn**2 - Sn - 1
-    ###   print (fibo.to_list([0,1],10))
-    ###   P,Q = fibo.forward_matrix_bsplit (10, 0)
-    ###   print (P*Matrix([[0],[0]])/Q)
 
     maxOrder = 5
     minOrder = 1
@@ -44,7 +43,7 @@ if __name__ == "__main__":
                 f = R.random_element (j)
                 # Using to_list method
                 startLst = time.time()
-                f.to_list (cond[j-minOrder], i)
+                _ = f.to_list (cond[j-minOrder], i)
                 stopLst = time.time()
 
                 # Using forward_matrix
@@ -52,7 +51,7 @@ if __name__ == "__main__":
                 P,Q = f.forward_matrix_bsplit (i,0)
                 if Q==0:
                    continue
-                P*Matrix([[e] for e in cond[j-minOrder]])/Q
+                _ = P*Matrix([[e] for e in cond[j-minOrder]])/Q
                 stopMtx = time.time()
 
                 lst += (stopLst - startLst)*1000./nbExec
@@ -62,3 +61,10 @@ if __name__ == "__main__":
             print (i, "Done :", lst, "\t", fwdMtx)
 
 
+    with open('bench.csv','w') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        times = zip(*execTime)
+        for i,j in enumerate([10,100,1000]):
+            lstTime, mtxTime = zip(*times[i])
+            writer.writerow ([j] + ['to_list'] + [fiboTime[i][0]] + list(lstTime))
+            writer.writerow ([j] + ['forward_matrix'] + [fiboTime[i][1]] + list(mtxTime))
