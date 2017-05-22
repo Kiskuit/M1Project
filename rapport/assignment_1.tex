@@ -19,6 +19,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
+\usepackage{pifont}
 
 % Margins
 %\topmargin=-0.45in
@@ -65,6 +66,10 @@
 \newlength{\charwidth}
 \setlength{\charwidth}{\widthof{\S}}
 \newcommand{\uline}{\underline{\hspace{2\charwidth}}}
+\let\olditem\item
+\renewcommand{\item}{\olditem[$\bullet$]}
+\newcommand{\itemV}{\olditem[{\color{green} \ding{51}}]}
+\newcommand{\itemX}{\olditem[{\color{red} \ding{55}}]}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -77,7 +82,7 @@
 }
 
 \author{\textbf{\hmwkAuthorName}}
-\date{\today} % Insert date here if you want it to appear below your name
+\date{\today}
 
 %----------------------------------------------------------------------------------------
 
@@ -86,32 +91,34 @@
 \maketitle
 \begin{abstract}
     Ce rapport présente le travail que nous avons effectué au cours de ce projet.
-    Nous présentons dans un premier temps ce que sont les suites P-récursives,
-    ainsi que l'outil SageMath. Puis nous expliquons les motivations de ce projet.
+    Nous présentons dans un premier temps ce que sont les suites P-récursives, et les
+    motivations des travaux autour de ce domaine.
+    Puis nous présentons l'outil SageMath et la bibliothèque \textsc{OreAlgebra}.
     Enfin, nous détaillons les choix et détails de l'implémentation que nous avons réalisé,
     avant de discuter des limites de celle-ci et des possibles améliorations.
 \end{abstract}
-% TODO logo UPMC & stuff
+\vspace{1in}
+\begin{center}
+    \includegraphics[scale=0.7]{figures/upmc}
+\end{center}
 
 %----------------------------------------------------------------------------------------
 %	TABLE OF CONTENTS
 %----------------------------------------------------------------------------------------
 
-\setcounter{tocdepth}{2} % Uncomment this line if you don't want subsections listed in the ToC
+\setcounter{tocdepth}{2}
 
 \newpage
 \tableofcontents
 \newpage
 
 %----------------------------------------------------------------------------------------
-%	PROBLEM 1
+%	Corps du rapport
 %----------------------------------------------------------------------------------------
 
 % To have just one problem per page, simply put a \clearpage after each problem
 
 \section{Introduction}
-    \label{sec:intro}
-    {\color{red} ...TODO...}
     \subsection{Suites p-récursives \& Algèbre d'Ore}
         \label{ssec:prec}
         \par Les suites sont beaucoup utilisées en mathématiques et dans différents domaines
@@ -162,22 +169,34 @@
         il n'inclut pas encore officiellement de librairie pour l'algèbre d'Ore.
         Nous avons eu donc recours à une bibliothèque en cours de développement par
         la communauté qui implémente l'algèbre d'Ore. L'utilisation de cette bibliothèque
-        est présentée dans {\color{red} ref}.
-        % TODO ref papier/site
+        est présentée dans \ref{sec:libore} en ce qui concerne les outils qui nous sont utiles dans
+        ce projet, et dans {\color{red} ref} pour une présentation plus générale.
     \subsection{La bibliotèque \textsc{OreAlgebra}}
-\section{--Méthodologie de travail, et progression}
+        \label{sec:libore}
+        \par Remarquons enfin que Sage dispose d'une syntaxe propre, qui s'appuie sur celle de Python.
+        C'est celle-ci qui est utilisée dans la documentation de la bibliothèque, et que nous
+        reprendrons ici. Cela permettra également de présenter brièvement les éléments de syntaxe
+        basiques, spécifiques à Sage.\\
+        {\color{red} TODO code extracts + explications. Pres ring/fields/pols/orealgebra}
+
+%----------------------------------------------------------------------------------------
+%----------------------------------------------------------------------------------------
+
+\section{Méthodologie}
     \label{sec:methodo}
     \par La première tâche à laquelle nous nous sommes attelés a été une recherche bibliographique,
-    pour comprendre le sujet (les suites p-récursives), et nos outils (Sage et Python).
+    pour comprendre le sujet (les suites p-récursives), et nos outils (Sage, Python et la 
+    bibliothèqe \textsc{OreAlgebra}).
     Les résultats de cette démarche sont présentés dans la partie \ref{sec:intro}.\\
-    Puis nous avons commencé à discuter de l'implémentation. En accord avec notre encadrant,
-    nous avons estimé qu'il était plus pertinent d'un point de vue pédagogique, de réaliser
-    d'abord un module Python. Puis, une fois ce module eprouvé, si nous avions le temps,
-    le réécrire avec la syntaxe de Sage. Cette manière de procédé devait permettre de se
-    concentrer initialement sur le fond, et non la forme, puisque nous étions plus familier
-    avec Python. {\color{blue} Il s'est avéré par la suite que nous n'avons pas eu le temps
-    d'aborder la réécriture}.
-    \subsection{--Module Python}
+    Puis nous avons commencé à discuter de l'implémentation. Bien que Sage dispose de sa propre
+    syntaxe, il est d'usage d'écrire les modules en \og Python pur \fg. La syntaxe spécifique
+    de Sage est surtout du sucre syntaxique pour l'interface en ligne de
+    commande. De plus, le pré-parseur de Sage n'est pas d'une robustesse à toutes épreuves,
+    et son utilisation peut engendrer des résultats non voulus, et imprévisibles. Enfin, 
+    cela présente également l'intérêt de produire du code réutilisable dans un cadre plus large.
+    Pour ces différentes raisons, le langage de notre implémentation a évidemment été Python
+    \footnote{Plus exactement, Python 2.7.9}.
+    \subsection{Module Python}
         \label{ssec:py}
         La base du module a été d'écrire une classe Python ({\color{red} init. n'étend aucun classes}). Cette classe devait notamment permettre
         d'utiliser la représentation basée sur la relation de récurrence, et des conditions initiales.
@@ -189,8 +208,52 @@
         \\{\color{red}calculer ts les elts vs calculer que le bon élement, exemple de différence tps exec sur 100000!})\\
         Par la suite, nous avons également surcharger les opérateurs d'addition, soustraction et multiplication, 
         en accord avec les lois de l'agèbre d'Ore.
+    \subsection{Objectifs \& Étapes}
+        Initialement, nous avons convenu d'une hierarchie d'objectifs que nous souhaitions atteindre
+        pour ce projet. Les objectifs prioritaires qu'il nous semblait impératif d'atteindre sont les
+        suivants :
+        \begin{itemize}
+                % TODO ref part corresp
+            \itemV Un \textbf{constructeur} permettant à l'utilisateur de créer un objet de notre classe,
+                en spécifiant des conditions initiales et un annhilateur.
+            \itemV La \textbf{surcharge des opérations $+$ et $\times$} pour additioner et multiplier des
+                instances de la classe entre elles.
+            \itemV La \textbf{surcharge de l'opérateur \texttt{\uline getitem\uline}}, pour permettre à
+                l'utilisateur d'accéder à un élément de la suite.
+        \end{itemize}
+        Puis, une liste d'objectifs importants parmi laquelle nous souhaitions en implémenter le plus
+        possible :
+        \begin{itemize}
+            \itemX Faire en sorte que le code fonctionne dans plusieurs anneaux, notamment
+                $\mathbb{Q,R,C}$ et les corps finis $mathbb F_p$(initialement, on se 
+                concentre sur $\mathbb Z$.
+            \itemV Un constructeur produisant une suite à partir d'une constante, permettant à terme
+                de gérer des opérations du type \emph{suite+constante}.
+            \itemX Une méthode pour tester si une suite est constante.
+            \itemX La surcharge des opérateurs de comparaison $=$ et $\ne$.
+            \itemX Une méthode cherchant un annihilateur d'ordre inférieur produisant la même suite
+                si il en existe un.
+            \itemX Un constructeur, qui fabrique l'opérateur de récurrence à partir des 
+                premiers termes de la suite uniquement.
+        \end{itemize}
+
+        Enfin, nous avons établis des objectifs secondaires. Ceux-ci étaient essentiellement
+        des objectifs dont l'intérêt était limité. Certains ont été implémentés quand ils
+        ne requérait pas trop de réflexion : 
+        \begin{itemize}
+            \itemX La surcharge des opérateurs de décallage $<<$ et $>>$ (dont la sémantique doit
+                être clarifiée).
+            \itemV Un itérateur infini.
+            \itemX La division d'une suite par une constante.
+            \itemX Un constructeur qui fabrique une suite correspondant à une expression Sage.
+            \itemX Un moyen de calculer des suites du type $u(3n+2)$ à partir de u(n).
+        \end{itemize}
+
+%----------------------------------------------------------------------------------------
+%----------------------------------------------------------------------------------------
 
 \section{Implémentations}
+    \subsection{Constructeur : \texttt{\uline init\uline}}
     \subsection{Cacul d'un élément de la suite : \texttt{\uline getitem\uline } et \texttt{to\_list}}
         Pour calculer un élément d'une suite, il nous semblait logique de surcharger l'opérateur
         \texttt{\uline getitem\uline }, qui permet d'obtenir un élément de la manière suivante : 
@@ -233,6 +296,12 @@
         8 à 13, éventuellement avec un pas. Dans notre cas, nous avons simplement adapté notre
         fonction, afin qu'elle calcule le premier élément de la tranche avec la méthode optimale,
         et les éléments suivants avec la méthode \texttt{to\_list} de l'annhilateur.
+
+
+\setcounter{secnumdepth}{0}
+\section{Conclusion}
+    \subsection{Résultats}
+    \subsection{Perspectives}
 
        
 
