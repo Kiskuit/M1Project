@@ -15,6 +15,7 @@
 \usepackage{vmargin}
 \usepackage{url}
 \usepackage{color}
+\usepackage{calc}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
@@ -56,6 +57,14 @@
 \newcommand{\hmwkClassTime}{} % Class/lecture time
 \newcommand{\hmwkClassInstructor}{Marc \textsc{Mezzarobba}} % Teacher/lecturer
 \newcommand{\hmwkAuthorName}{Mathis \textsc{Caristan} \& Aurélien \textsc{Lamoureux}} % Your name
+
+%----------------------------------------------------------------------------------------
+%	Our commands
+%----------------------------------------------------------------------------------------
+
+\newlength{\charwidth}
+\setlength{\charwidth}{\widthof{\S}}
+\newcommand{\uline}{\underline{\hspace{2\charwidth}}}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -171,7 +180,7 @@
         \label{ssec:py}
         La base du module a été d'écrire une classe Python ({\color{red} init. n'étend aucun classes}). Cette classe devait notamment permettre
         d'utiliser la représentation basée sur la relation de récurrence, et des conditions initiales.
-        Immédiatement après, nous avons surchargé l'opérateur \texttt{\_\_getitem\_\_} pour accéder
+        Immédiatement après, nous avons surchargé l'opérateur \texttt{\uline getitem\uline } pour accéder
         au n-ième terme de la suite. Initialement, nous calculions tous les termes de la suite, jusqu'à 
         celui voulu, que nous renvoyions, mais cette méthode est très inefficace. Nous avons donc résolu
         d'utiliser la fonction \texttt{forward\_matrix} du module \textsc{ore\_algebra} à la place ({\color{red} exemple
@@ -179,6 +188,52 @@
         \\{\color{red}calculer ts les elts vs calculer que le bon élement, exemple de différence tps exec sur 100000!})\\
         Par la suite, nous avons également surcharger les opérateurs d'addition, soustraction et multiplication, 
         en accord avec les lois de l'agèbre d'Ore.
+
+\section{Implémentations}
+    \subsection{Cacul d'un élément de la suite : \texttt{\uline getitem\uline } et \texttt{to\_list}}
+        Pour calculer un élément d'une suite, il nous semblait logique de surcharger l'opérateur
+        \texttt{\uline getitem\uline }, qui permet d'obtenir un élément de la manière suivante : 
+        \texttt{u[42]}. En plus de ce choix, nous avons également surchargé la fonction
+        \texttt{to\_list(n)}, qui nous permet d'obtenir tous les éléments de la suite, jusqu'à $n$.
+        Nous avons utilisé plusieurs implémentations successives pour ces fonctions.
+        Après être passés par l'innévitable \og méthode brouillone \fg, ou le code était duppliqué,
+        et aucune des deux fonctions n'avaient une identité propre, nous avons finalement opté pour
+        faire en sorte que \texttt{to\_list} appelle \texttt{\uline getitem\uline }. Une fois ce point
+        éclairci, il nous restait à savoir comment implémenter le calcul même. Notre premier choix
+        a été d'utiliser la fonction \texttt{to\_list} des objets \textsc{OreAlgebra}. En effet,
+        pout un annihilateur et des conditions initiales données, celle-ci génère tous les éléments
+        jusqu'à la valeur désirée.
+        \par Cependant, nous avons remarqué que cette méthode présentait un défaut important : son
+        temps de calcul. Ceci est dû au fait que pour calculer un élément $n$, cette fonction
+        calcule tous les éléments dans l'intervalle $[0,n]$. Or ceci est complètement inneficace
+        dans le cas où on ne veut que l'élément $n$. Pour palier à ce problème, notre encadrant nous 
+        a suggéré d'utiliser la fonction \texttt{forward\_matrix\_bsplit}.
+        {\color{red} Explications fctmt ou boite noire.}
+        Cette fonction permet de calculer directement un élément de la suite, sans calculer tous ses
+        prédécesseurs
+        \footnote{Plus précisément, cette fonction calcule $k$ éléments, où  $k$ est l'ordre de la
+        récurrence de la suite.}.
+        \par Enfin, la dernière implémentation que nous ayons réalisé pour ce calcul est la suivante.
+        Nous suspections que la fonction \texttt{forward\_matrix\_bsplit} était moins efficace que la
+        fonction \texttt{to\_list} pour des valeurs basses de $n$. Ainsi, dans l'idée d'optimiser au
+        mieux la fonction, nous avons comparé les exécutions de ces deux fonctions en faisant varier
+        deux paramètres. D'une part nous avons fait varier $n$, et d'autre part l'ordre des suites
+        utilisées. Les résultats sont présentés dans la figure \ref{fig:getitem}.
+        \begin{figure} \begin{center}
+            \includegraphics[scale=0.4]{figures/placeholder.png}
+            \caption{\label{fig:getitem}\color{red}TODO}
+        \end{center} \end{figure}
+        {\color{red} TODO commentaires}. Ces résultats nous ont permis de déterminer empiriquement
+        une valeur à partir de laquelle nous passons d'une méthode à l'autre.\\
+        \par Le dernier point que nous avons implémenté concernant ces fonctions,
+        est la possibilité d'utiliser les slices de Python. Les slices, sont des objets
+        qui peuvent être paramètre de \texttt{\uline getitem\uline}. Pour une liste, ils permettent
+        d'indiquer qu'on souhaite obtenir une \og tranche \fg\ de la liste, par exemple, les éléments
+        8 à 13, éventuellement avec un pas. Dans notre cas, nous avons simplement adapté notre
+        fonction, afin qu'elle calcule le premier élément de la tranche avec la méthode optimale,
+        et les éléments suivants avec la méthode \texttt{to\_list} de l'annhilateur.
+
+       
 
 %----------------------------------------------------------------------------------------
 
