@@ -96,19 +96,21 @@ class PRecSequence(object):
         """
         TODO doc
         """
+        # i is used for the iterator
+        self.i
         # TODO : use @classmethod instead?
         if const:
             if cond or annihilator:
-                raise Exception("Constant sequences must be initialized only with
-                its constant value.")
-                cond = {0:const}
-            # annihilator = Sn
-            # TODO make const annihilator
+                raise Exception("Constant sequences must be initialized only with its constant value.")
+            cond = [const]
+            A,n = const.parent()['n'].objgen()
+            R,Sn = OreAlgebra(A,'Sn').objgen()
+            annihilator = Sn - 1
             # TODO in case of addition u_n + const, use this part of the constructor
             
 
         if (type(cond) == list): # The argument is a list
-             self.cond_init = {i:cond[i] for i in range(0,len(cond))}
+             self.cond_init = {i:cond[i] for i in range(len(cond))}
         elif (type(cond) == dict): # The argument is a dict
             self.cond_init = cond.copy()
         else:
@@ -140,6 +142,13 @@ class PRecSequence(object):
             err_string += "(Only "+l+"provided)."
             raise Exception (err_string)
             # TODO check if param l were used when catching excn
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        self.iterator = self.annihilator.to_list(self.iterator,self.order+1)[1:]
+        return self.iterator[-1]
 
 
     def to_list(self, stop, start=None):
@@ -177,7 +186,7 @@ class PRecSequence(object):
         # For low values of start, recursion is faster than forward_matrix
         # TODO actual test to estimate the value at which the shift happen
         # TODO check value in dict
-        if start < 1000 :
+        if start < 100 :
             # Use recursive method
             vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
             if(start < len(vals) - self.order):
@@ -211,9 +220,15 @@ class PRecSequence(object):
         # violente. Il vaut probablement mieux déclencher une erreur si les
         # deux annulateurs n'ont pas le même parent, ou à la rigueur utiliser
         # self.R.coerce().
-        #(R est devenu parent depuis)
+        # TODO
+        # (R est devenu parent depuis)
+        # TODO test that!
+        if isinstance(other,Integer) : # LHS is a constant integer
+            other = self (other)
+        # TODO add other constant (rational, real, complex?...)
+        if self.parent != other.annihilator.parent() : 
+            raise TypeError ("LHS and RHS must have the same parent.")
         new_annihilator = self.annihilator.lclm(self.parent(other.annihilator))
-        # print(new_annihilator)
 
         #find degenerative case
         try:
