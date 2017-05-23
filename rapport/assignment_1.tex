@@ -138,6 +138,7 @@
 %	Corps du rapport
 %----------------------------------------------------------------------------------------
 \section{Introduction}
+    \label{sec:intro}
     \subsection{Suites p-récursives \& Algèbre d'Ore}
         \label{sec:prec}
         \par Les suites sont beaucoup utilisées en mathématiques et dans différents domaines
@@ -205,7 +206,7 @@
     \par La première tâche à laquelle nous nous sommes attelés a été une recherche bibliographique,
     pour comprendre le sujet (les suites p-récursives), et nos outils (Sage, Python et la 
     bibliothèqe \textsc{OreAlgebra}).
-    Les résultats de cette démarche sont présentés dans la partie \ref{sec:intro}.\\
+    Les résultats de cette démarche sont présentés dans la section \ref{sec:intro}.\\
     Puis nous avons commencé à discuter de l'implémentation. Bien que Sage dispose de sa propre
     syntaxe, il est d'usage d'écrire les modules en \og Python pur \fg. La syntaxe spécifique
     de Sage est surtout du sucre syntaxique pour l'interface en ligne de
@@ -404,10 +405,24 @@
         multiplication de deux opérateur se calcule grâce à la fonction \texttt{symmetric\_product},
         qui est également fournie par \textsc{OreAlgebra}.
 
+    \subsection{Autres objectifs}
+
 \setcounter{secnumdepth}{0}
 \section{Conclusion}
-    \subsection{Résultats}
-    \subsection{Perspectives}
+        Dans l'ensemble, nous avons réussi à développer une classe répondant aux objectifs
+        principaux que nous nous étions fixés.
+        Celle-ci permet une manipulation basique des suites P-récursives 
+        et propose également des fonctionnalités secondaires, telle que la possibilité de travailler
+        dans différents ensembles ($\mathbb{Z,Q,R}$, nous n'avons pas testé $\mathbb{C}$ et 
+        $\mathbb F_p$), ou bien la manipulation de constantes comme une suite récursive.\\
+        Les principales difficultés que nous avons rencontrées, ont été pour la plupart liées
+        à des problèmes de définitions, ou de paradigme. Pour les contourner, il a fallu
+        se mettre à la place de l'utilisateur du module, et comprendre ce qu'il en attend lorsqu'il choisit
+        de l'utiliser. Certains dilemmes n'ont pas de solution unique, et dépendent du cas spécifique
+        auquel est confronté l'utilisateur. Pour cette raison, nous nous sommes efforcés de rester 
+        généraliste dans la manière dont nous traitions les problèmes, et de rendre les traitements
+        spécifiques optionnels.
+        
        
 
 %----------------------------------------------------------------------------------------
