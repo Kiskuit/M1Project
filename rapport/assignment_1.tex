@@ -299,7 +299,7 @@
 
 
 %premiere creation en latex (surement a ameliorer et harmoniser)
-    \subsection{Structure d'anneaux : \texttt{\uline add\uline } et \texttt{mul}}
+    \subsection{Structure d'anneaux : \texttt{\uline add\uline } et \texttt{\uline mul \uline}}
         Comme les suites P-récucives munis des lois de l'addition et de la multiplication 
         forme un anneaux, l'implementation des fonctions d'ajout et de multiplication de ces suites
         nous a parus evident. L'operateur de la somme de deux suites est definie comme le plus petit 
@@ -320,15 +320,16 @@
         \begin{align*}
             &\textnormal{Ent. Consec. : } n*E_{n+1} - (n+1)E_n = 0, \qquad E_0 = 0, N_1 = 1\\
             &\textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n = 0, \qquad F_0=0, F_1=1\\
-            &\textnormal{Leur Sommme : } (n - 1)*D_{n+3} + (-2*n + 1)*D_{n+2} + D_{n+1} n*D_n = 0, \\
-             D_0 = 0, D_1 = 2, D_2 = 3
+            &\textnormal{Leur Sommme : } (n - 1)*D_{n+3} + (-2*n + 1)*D_{n+2} + D_{n+1} n*D_n = 0,\\
+             &D_0 = 0, D_1 = 2, D_2 = 3
         \end{align*} 
         Cette suite est d'ordre 3, on devrais donc sommer les 3 premiers termes de E et F (respectivement 
         [0,1,2] et [0,1,1]) ce qui donnerai comme conditions initial pour D : [0,2,3]. Mais maintenant si 
-        l'on essaie de dérouler la recurence pour calculer le prochain terme nous obtenont \texttt{D\_3 = 5}
-        mais pour le terme \texttt{D\_4} nous obtenons une erreur car on a \texttt{ 0*D\_4 + 1*D\_3 + D\_2 + 1*D\_1 = 0 }
-        on ne  peux calculer \texttt{D\_4}, cela ce produit a cause du \texttt{n-1} devant \texttt{D\_{n+3}} 
-        mais comme \texttt{F\_4} et \texttt{E\_4} existe, nous avons donc décidé que lorsque l'opérateur de la somme de deux suites est dans un cas similaire a celui-ci, nous calcultons la somme des éléments dégénératifs et les 
+        l'on essaie de dérouler la recurence pour calculer le prochain terme nous obtenont $D_{3}$ = 5 
+        mais pour le terme $D_4$ nous obtenons une erreur car on a $0*D_4 + 1*D_3 + D_2 + 1*D_1 = 0 $
+        on ne  peux calculer $D_4$, cela ce produit a cause du $n-1$ devant $D_{n+3}$
+        mais comme $F_4$ et $E_4$ existe nous avons donc décidé que lorsque l'opérateur de la somme de
+         deux suites est dans un cas similaire a celui-ci, nous calcultons la somme des éléments dégénératifs et les 
         rajoutons dans les conditions initals.
         \par En se qui concerne la multiplication le principe est exactement le même sauf que la 
         multiplication de deux opérateur de calcul grâce a la fonction \texttt{symmetric\_product},
