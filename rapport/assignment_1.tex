@@ -66,10 +66,10 @@
 \newlength{\charwidth}
 \setlength{\charwidth}{\widthof{\S}}
 \newcommand{\uline}{\underline{\hspace{2\charwidth}}}
-\let\olditem\item
-\renewcommand{\item}{\olditem[$\bullet$]}
-\newcommand{\itemV}{\olditem[{\color{green} \ding{51}}]}
-\newcommand{\itemX}{\olditem[{\color{red} \ding{55}}]}
+%\let\olditem\item
+%\renewcommand{\item}{\item[$\bullet$]}
+\newcommand{\itemV}{\item[{\color{green} \ding{51}}]}
+\newcommand{\itemX}{\item[{\color{red} \ding{55}}]}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -87,20 +87,42 @@
 %----------------------------------------------------------------------------------------
 
 \begin{document}
+\begin{titlepage}
+    \begin{center}
+        \includegraphics[scale=0.7]{figures/upmc}\\[1cm]
 
-\maketitle
-\begin{abstract}
-    Ce rapport présente le travail que nous avons effectué au cours de ce projet.
-    Nous présentons dans un premier temps ce que sont les suites P-récursives, et les
-    motivations des travaux autour de ce domaine.
-    Puis nous présentons l'outil SageMath et la bibliothèque \textsc{OreAlgebra}.
-    Enfin, nous détaillons les choix et détails de l'implémentation que nous avons réalisé,
-    avant de discuter des limites de celle-ci et des possibles améliorations.
-\end{abstract}
-\vspace{1in}
-\begin{center}
-    \includegraphics[scale=0.7]{figures/upmc}
-\end{center}
+        {\large Projet SFPN}\\[0.5cm]
+        % Title
+        \rule{\linewidth}{0.5mm} \\[0.4cm]
+        { \huge \bfseries Manipulation de suites P-récursives avec SageMath \\[0.4cm] }
+        \rule{\linewidth}{0.5mm} \\[1.5cm]
+
+        % Author and supervisor
+        \noindent
+        \begin{minipage}{0.4\textwidth}
+            \begin{flushleft} \large
+                \emph{Auteurs :}\\
+                    Mathis \textsc{Caristan}\\
+                    Aurélien \textsc{Lamoureux}\\
+            \end{flushleft}
+        \end{minipage}
+        \begin{minipage}{0.4\textwidth}
+            \begin{flushright} \large
+                \emph{Encadrant :} \\
+                    Marc \textsc{Mezzarobba}\\
+            \end{flushright}
+        \end{minipage}
+        \vspace{1in}
+        \begin{abstract}
+            Ce rapport présente le travail que nous avons effectué au cours de ce projet.
+            Nous présentons dans un premier temps ce que sont les suites P-récursives, et les
+            motivations des travaux autour de ce domaine.
+            Puis nous présentons l'outil SageMath et la bibliothèque \textsc{OreAlgebra}.
+            Enfin, nous détaillons les choix et détails de l'implémentation que nous avons réalisé,
+            avant de discuter des limites de celle-ci et des possibles améliorations.
+        \end{abstract}
+   \end{center}
+\end{titlepage}
 
 %----------------------------------------------------------------------------------------
 %	TABLE OF CONTENTS
@@ -128,15 +150,15 @@
         \begin{equation}
             \sum_{i=0}^k p_i(n) u_{n+i} = 0
         \end{equation}
-        où, les $p_i$ sont des polynômes en n. Il est importante de noter que contrairement
+        où, les $p_i$ sont des polynômes en $n$. Il est importante de noter que contrairement
         à des suites arbitraires, les suites p-récursives, bien que comportant un nombre
         potentiellement infini de termes, peuvent être représentées exactement simplement
         avec la relation de récurrence, et les conditions initiales.
         Des exemples communs de suites p-récursives
-        sont par exemple la suite de Fibonacci, ou la fonction factorielle.
+        sont par exemple la suite de Fibonacci, ou la fonction factorielle :
         \begin{align*}
             \textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n &= 0, \qquad F_0=0, F_1=1\\
-            \textnormal{Factorielle : } (n+1)! - (n+1)u! &= 0, \qquad 0!=1
+            \textnormal{Factorielle : } (n+1)! - (n+1)(n!) &= 0, \qquad 0!=1
         \end{align*}
         De plus, les suites p-récursives forment un anneau ({\color{red} Donner les détails?}).
         Dès lors, il semble pertinent
@@ -155,24 +177,22 @@
         basé sur Python. Ce langage présente une syntaxe qui diffère légérement de celle
         de Python. Ainsi, Sage est doté d'un "pré-analyseur" ou "pré-parseur",
         qui transforme les idiomes Sage en pur Python.
-        Ainsi, il est possible d'écrire des librairies pour Sage en Python pur ou en 
-        "langage sage".
-        Bien qu'il existe également d'autres méthodes, on ne s'est intéressé qu'à celles-ci au
-        cours du projet. {\color{red} ref doc sage?}
-        \par Comme évoqué plus haut, Sage est basé sur Python, et c'est donc naturellement
-        que nous avons choisi ce langage pour le projet.
+        Bien qu'il existe également d'autres méthodes, on ne s'est intéressé qu'à l'écriture
+        d'un module en Python au cours du projet.
         En particulier, Python 2, puisque Sage n'est pas compatible avec Python 3
         (bien que des efforts soient faits en ce sens).
         \par Bien que Sage fournisse de nombreuses librairies mathématiques,
         il n'inclut pas encore officiellement de librairie pour l'algèbre d'Ore.
         Nous avons eu donc recours à une bibliothèque en cours de développement par
-        la communauté qui implémente l'algèbre d'Ore. L'utilisation de cette bibliothèque
-        est présentée dans \ref{sec:libore} en ce qui concerne les outils qui nous sont utiles dans
-        ce projet, et dans {\color{red} ref} pour une présentation plus générale.
+        la communauté qui implémente l'algèbre d'Ore. Nous présentons certains outils
+        de cette bibliothèque
+        dans la section \ref{sec:libore}, tandis que {\color{red} ref} propose une
+        présentation plus générale.
     \subsection{La bibliotèque \textsc{OreAlgebra}}
         \label{sec:libore}
-        \par Remarquons enfin que Sage dispose d'une syntaxe propre, qui s'appuie sur celle de Python.
-        C'est celle-ci qui est utilisée dans la documentation de la bibliothèque, et que nous
+        \par Nous avons évoqué le fait queSage dispose d'une syntaxe propre, qui s'appuie
+        sur celle de Python.
+        C'est celle-ci qui est utilisée dans l'article de documentation du module, et que nous
         reprendrons ici. Cela permettra également de présenter brièvement les éléments de syntaxe
         basiques, spécifiques à Sage.\\
         {\color{red} TODO code extracts + explications. Pres ring/fields/pols/orealgebra}
@@ -194,40 +214,29 @@
     cela présente également l'intérêt de produire du code réutilisable dans un cadre plus large.
     Pour ces différentes raisons, le langage de notre implémentation a évidemment été Python
     \footnote{Plus exactement, Python 2.7.9}.
-%%%       \subsection{Module Python}
-%%%           \label{sec:py}
-%%%           La base du module a été d'écrire une classe Python ({\color{red} init. n'étend aucun classes}). Cette classe devait notamment permettre
-%%%           d'utiliser la représentation basée sur la relation de récurrence, et des conditions initiales.
-%%%           Immédiatement après, nous avons surchargé l'opérateur \texttt{\uline getitem\uline } pour accéder
-%%%           au n-ième terme de la suite. Initialement, nous calculions tous les termes de la suite, jusqu'à 
-%%%           celui voulu, que nous renvoyions, mais cette méthode est très inefficace. Nous avons donc résolu
-%%%           d'utiliser la fonction \texttt{forward\_matrix} du module \textsc{ore\_algebra} à la place ({\color{red} exemple
-%%%           et comparaison complex avec Fibo?}) 
-%%%           \\{\color{red}calculer ts les elts vs calculer que le bon élement, exemple de différence tps exec sur 100000!})\\
-%%%           Par la suite, nous avons également surcharger les opérateurs d'addition, soustraction et multiplication, 
-%%%           en accord avec les lois de l'agèbre d'Ore.
     \subsection{Objectifs \& Étapes}
-        Le module que nous avons écris est principalement constitué de la défintion
+        Le module que nous avons écrit est principalement constitué de la défintion
         d'une clase.
         Initialement, nous avons convenu d'une hierarchie d'objectifs que nous souhaitions 
         voir atteints par cette classe.
         Les objectifs prioritaires qu'il nous semblait impératif d'atteindre sont les
         suivants :
         \begin{itemize}
-                % TODO ref part corresp
             \itemV Un \textbf{constructeur} permettant à l'utilisateur de créer un objet de notre classe,
                 en spécifiant des conditions initiales et un annhilateur.
-            \itemV La \textbf{surcharge des opérations $+$ et $\times$} pour additioner et multiplier des
-                instances de la classe entre elles.
             \itemV La \textbf{surcharge de l'opérateur \texttt{\uline getitem\uline}}, pour permettre à
                 l'utilisateur d'accéder à un élément de la suite.
+            \itemV La \textbf{surcharge des opérations $+$ et $\times$} pour additioner et multiplier des
+                instances de la classe entre elles.
         \end{itemize}
-        Puis, une liste d'objectifs importants parmi laquelle nous souhaitions en implémenter le plus
+        Les démarches pour l'accomplissement de ces objectifs sont présentées dans leur section 
+        respective : \ref{sec:cons}, \ref{sec:getitem} et \ref{sec:ring}.\\
+        \par Puis, une liste d'objectifs importants parmi laquelle nous souhaitions en implémenter le plus
         possible :
         \begin{itemize}
-            \itemX Faire en sorte que le code fonctionne dans plusieurs anneaux, notamment
-                $\mathbb{Q,R,C}$ et les corps finis $mathbb F_p$(initialement, on se 
-                concentre sur $\mathbb Z$.
+            \itemV Faire en sorte que le code fonctionne dans plusieurs anneaux, notamment
+                $\mathbb{Q,R,C}$ et les corps finis $\mathbb F_p$(initialement, on se 
+                concentre sur $\mathbb Z$).
             \itemV Un constructeur produisant une suite à partir d'une constante, permettant à terme
                 de gérer des opérations du type \emph{suite+constante}.
             \itemX Une méthode pour tester si une suite est constante.
@@ -236,9 +245,8 @@
                 si il en existe un.
             \itemX Un constructeur, qui fabrique l'opérateur de récurrence à partir des 
                 premiers termes de la suite uniquement.
-        \end{itemize}
-
-        Enfin, nous avons établis des objectifs secondaires. Ceux-ci étaient essentiellement
+        \end{itemize} \bigskip
+        \par Enfin, nous avons établis des objectifs secondaires. Ceux-ci étaient essentiellement
         des objectifs dont l'intérêt était limité. Certains ont été implémentés quand ils
         ne requérait pas trop de réflexion : 
         \begin{itemize}
@@ -247,7 +255,7 @@
             \itemV Un itérateur infini.
             \itemX La division d'une suite par une constante.
             \itemX Un constructeur qui fabrique une suite correspondant à une expression Sage.
-            \itemX Un moyen de calculer des suites du type $u(3n+2)$ à partir de u(n).
+            \itemX Un moyen de calculer des suites du type $u(3n+2)$ à partir de $u(n)$.
         \end{itemize}
 
 %----------------------------------------------------------------------------------------
@@ -258,6 +266,7 @@
     de la classe, et des erreurs et problèmes que nous avons rencontrés pendant la
     phase de développement.
     \subsection{Constructeur : \texttt{\uline init\uline}}
+        \label{sec:cons}
         Nous avons eu plusieurs changement de directions en ce qui concerne le constructeur.
         Le principal problème pour cette fonction, a été de déterminer les choix que nous
         faisions (et allions imposer à l'utilisateur) concernant les conditions initiales.
@@ -265,25 +274,25 @@
         valeurs dégénérées, et arrive lorsque le terme dominant de la récurrence 
         a une racine ou plus dans $\mathbb Z$. Prenons par exemple la suite
         définie par $(n-2)u_{n+1} - u_n = 0, u_0 = 1$. Nous pouvons sans problème calculer
-        le second terme de la suite, $u_1 = -1$, mais la relation de récurrence ne permet pas
-        de calculer $u_2$, et donc tous les termes suivants.
+        les deux termes suivants de la suite, $u_1 = \frac{-1}{2}, u_2 = \frac{1}{2}$,
+        mais la relation de récurrence ne permet pas de calculer $u_3$, et donc tous les termes suivants.
         Une solution simple est de permettre à l'utilisateur de fixer des conditions initiales
-        supplémentaires. Dans notre exemple, ajouter la condition $u_2 = 3$ permet de
-        contourner la racine, et calculer toutes les valeurs suivantes.
+        supplémentaires. Dans notre exemple, ajouter la condition $u_3 = 3$ permet de
+        contourner la racine, et calculer toutes les valeurs suivantes, $u_4 = 3,u_5=\frac{3}{2}\ldots$
         \par Suite à ce raisonnement, nous avions pris la décision de vérifier le terme
         dominant de l'annihilateur, et d'imposer à l'utilisateur de spécifier des 
         valeurs supplémentaires pour toutes les racines de celui-ci. De plus,
         toutes les valeurs dans $[i_{min},r_{max}]$ devaient être renseignées,
         où $i_{min}$ est l'indice de début de la suite, et $r_{max}$ la plus grande racine 
-        dans $\mathbb Z$. Cette méthode nous est cependant vite apparue comme étant
+        dans $\mathbb Z$. Cette méthode nous est cependant rapidement apparue comme étant
         problématique, en particulier dans le cas de grandes racines. Il est en effet
         contre-productif de demander à l'utilisateur toutes les valeurs d'une suite,
         jusqu'à la plus grande racine, si celle-ci est par exemple de l'ordre de $10^3$.
         De même, dans le cas où il n'a besoin que de termes dont l'indice est petit devant
-        $r_{max}$, l'obliger à donner la valeur pour cette racine n'est pas logique.\\
+        $r_{max}$, l'obliger à donner les valeurs jusqu'à cette racine n'est pas logique.
         Nous sommes donc revenus sur cette décision, et avons choisi à la place de simplement
         lever une exception lorsque l'utilisateur demande le calcul d'une valeur dégénérée
-        pour laquelle il n'a pas saisi de condition initale supplémentaire.
+        pour laquelle il n'a pas saisi de condition initiale supplémentaire.
         \par Autoriser les conditions initiales supplémentaires entraîne cependant un second
         problème. Celui de savoir comment traiter ces valeurs vis-à-vis du calcul des
         éléments suivants. Deux approches ont été envisagées, et il n'est pas évident
@@ -295,18 +304,21 @@
         $u_{n+2} - u_{n+1} - u_n = 0, u_0=0, u_1=1, u_5=6$. Dans les deux cas, les 6 premiers
         termes sont $(0,1,1,2,3,\emph{6})$. Mais dans le premier cas, les termes suivants sont
         les termes usuels $(8,13,21...)$ car la valeur exceptionnelle n'est pas prise en
-        compte pour le calcul. Tandis que dans le second cas, les termes suivants sont
-        $(9,15,24...)$.
+        compte pour le calcul des termes suivants. Tandis que dans le second cas, les termes
+        suivants sont $(9,15,24...)$. L'idéal semblerait de laisser le choix à l'utilisateur
+        quel mode il souhaite utiliser au moment de l'instanciation de la suite, par le biais
+        d'un argument optionnel.
 
     \subsection{Cacul d'un élément de la suite : \texttt{\uline getitem\uline } et \texttt{to\_list}}
-        Pour calculer un élément d'une suite, il nous semblait logique de surcharger l'opérateur
+        \label{sec:getitem}
+        Pour obtenir un élément d'une suite, il nous semblait logique de surcharger l'opérateur
         \texttt{\uline getitem\uline }, qui permet d'obtenir un élément de la manière suivante : 
         \texttt{u[42]}. En plus de ce choix, nous avons également surchargé la fonction
-        \texttt{to\_list(n)}, qui nous permet d'obtenir tous les éléments de la suite, jusqu'à $n$.
+        \texttt{to\_list(n)}, qui nous permet d'obtenir une liste des éléments de la suite, jusqu'à $n$.
         Nous avons utilisé plusieurs implémentations successives pour ces fonctions.
         Après être passés par l'innévitable \og méthode brouillone \fg, ou le code était duppliqué,
         et aucune des deux fonctions n'avaient une identité propre, nous avons finalement opté pour
-        faire en sorte que \texttt{to\_list} appelle \texttt{\uline getitem\uline }. Une fois ce point
+        faire en sorte que \texttt{to\_list} appelle \texttt{\uline getitem\uline}. Une fois ce point
         éclairci, il nous restait à savoir comment implémenter le calcul même. Notre premier choix
         a été d'utiliser la fonction \texttt{to\_list} des objets \textsc{OreAlgebra}. En effet,
         pout un annihilateur et des conditions initiales données, celle-ci génère tous les éléments
@@ -328,11 +340,20 @@
         deux paramètres. D'une part nous avons fait varier $n$, et d'autre part l'ordre des suites
         utilisées. Les résultats sont présentés dans la figure \ref{fig:getitem}.
         \begin{figure} \begin{center}
-            \includegraphics[scale=0.4]{figures/placeholder.png}
-            \caption{\label{fig:getitem}\color{red}TODO}
+            \includegraphics[scale=0.7]{figures/graphe.png}
+            \caption{\label{fig:getitem}Rapport du temps de calcul avec \texttt{to\_list} sur le temps
+            de calcul avec \texttt{forward\_matrix\_bsplit}, pour différentes valeurs de n, et différents
+            ordres de récurrence. On utilise une échelle logarithmique.}
         \end{center} \end{figure}
-        {\color{red} TODO commentaires}. Ces résultats nous ont permis de déterminer empiriquement
-        une valeur à partir de laquelle nous passons d'une méthode à l'autre.\\
+        Ces résultats ont été obtenus en prennant la moyenne du temps d'exécution sur 10 exécutions avec
+        des annihilateurs générés aléatoirement (et ne créant pas de termes dégénérés) et d'ordre fixé.
+        On note que dès le 
+        calcul d'éléments de l'ordre de $100$, la méthode \texttt{forward\_matrix\_bsplit} est déjà plus
+        efficace. Notons également que l'influence de l'ordre de la récurrence semble augmenter pour 
+        des valeurs plus élevées de $n$. 
+        Ces résultats nous ont permis de déterminer empiriquement
+        une valeur à partir de laquelle nous passons d'une méthode à l'autre. Nous avons fixé cette valeur
+        a $100$.\\
         \par Le dernier point que nous avons implémenté concernant ces fonctions,
         est la possibilité d'utiliser les slices de Python. Les slices, sont des objets
         qui peuvent être paramètre de \texttt{\uline getitem\uline}. Pour une liste, ils permettent
@@ -343,39 +364,45 @@
 
 
     \subsection{Structure d'anneaux : \texttt{\uline add\uline } et \texttt{\uline mul\uline}}
-        Puisque les suites P-récucives, munies des lois de l'addition et de la multiplication,
-        forment un anneau, l'implémentation des fonctions d'addition et de multiplication de ces suites
-        nous a parue évident. L'opérateur de la somme de deux suites est definie comme le plus petit 
-        multiple commun à gauche (\texttt{lclm}) des deux operateurs des suite que l'on ajoute.
-        La fonction qui calcule le \texttt{lclm} de deux suites est fournie par la bibliothèque \textsc{OreAlgebra}. 
-        Si la nouvelle suite est d'odre $n$ alors ces conditons initals seront la somme des 
-        $n$ premiers termes des deux suites. Pour cela nous utilisons la fonction \texttt{to\_list} que nous avons écrite
+        \label{sec:ring}
+        Nous avons déjà évoqué le fait que les suites P-récursives forment un anneau,
+        l'implémentation des fonctions d'addition et de multiplication était donc une étape
+        importante de l'avancée du projet.
+        L'annihilateur de la somme de deux suites est definie comme le plus petit 
+        multiple commun à gauche (\texttt{lclm}) des deux annihilateurs des suite sommées.
+        La fonction qui calcule le \texttt{lclm} de deux suites est fournie par la bibliothèque
+        \textsc{OreAlgebra}. 
+        Si la nouvelle suite est d'odre $n$ alors ses conditons initales seront la somme des 
+        $n$ premiers termes des deux suites. Pour cela nous utilisons la fonction \texttt{to\_list}
+        que nous avons écrite
         et récuperons les $n$ premiers éléments des suites et les sommons.
-        Par exemple si l'on ajoute la suite de \texttt{Fibonacci} et celle de \texttt{Tribonacci}
+        Par exemple si l'on ajoute la suite de \texttt{Fibonacci} et celle de \texttt{Tribonacci} :
         \begin{align*}
-            &\textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
-            &\textnormal{Tribonacci : } T_{n+3} - T_{n+2} - T_{n+1} - T_n = 0,\qquad T_0 = 0, T_1 = 1, T_2 = 1\\
-            &\textnormal{Leur Sommme : } S_{n+5} - 2*S_{n+4} - S_{n+3} + S_{n+2} + 2*S_{n+1} + S_n = 0,\\&S_0 = 0, S_1 = 2, S_2 = 2, S_3 = 4, S_4 = 7
+            \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
+            \textnormal{Tribonacci : } &T_{n+3} - T_{n+2} - T_{n+1} - T_n = 0,\qquad T_0 = 0, T_1 = 1, T_2 = 1\\
+            \textnormal{Leur Sommme : } &S_{n+5} - 2S_{n+4} - S_{n+3} + S_{n+2} + 2S_{n+1} + S_n = 0,\\
+            &S_0 = 0, S_1 = 2, S_2 = 2, S_3 = 4, S_4 = 7
         \end{align*} 
         
         \par Cependant la suite nouvellement formée n'est pas toujours aussi facile à traiter, prenons la cas
         de la somme des suites des  \texttt{Entier consecutif} et \texttt{Fibonacci}
         \begin{align*}
-            &\textnormal{Ent. Consec. : } n*E_{n+1} - (n+1)E_n = 0, \qquad E_0 = 0, N_1 = 1\\
-            &\textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n = 0, \qquad F_0=0, F_1=1\\
-            &\textnormal{Leur Sommme : } (n - 1)*D_{n+3} + (-2*n + 1)*D_{n+2} + D_{n+1} n*D_n = 0, \\
-             D_0 = 0, D_1 = 2, D_2 = 3
+            \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, N_1 = 1\\
+            \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
+            \textnormal{Leur Sommme : } &(n - 1)D_{n+3} + (-2n + 1)D_{n+2} + D_{n+1} nD_n = 0, \\
+            &D_0 = 0, D_1 = 2, D_2 = 3
         \end{align*} 
         Cette suite est d'ordre 3, on devrais donc sommer les 3 premiers termes de E et F (respectivement 
-        [0,1,2] et [0,1,1]) ce qui donnerai comme conditions initial pour D : [0,2,3]. Mais maintenant si 
-        l'on essaie de dérouler la recurence pour calculer le prochain terme nous obtenont \texttt{D\_3 = 5}
-        mais pour le terme \texttt{D\_4} nous obtenons une erreur car on a \texttt{ 0*D\_4 + 1*D\_3 + D\_2 + 1*D\_1 = 0 }
-        on ne  peux calculer \texttt{D\_4}, cela ce produit a cause du \texttt{n-1} devant \texttt{D\_{n+3}} 
-        mais comme \texttt{F\_4} et \texttt{E\_4} existe, nous avons donc décidé que lorsque l'opérateur de la somme de deux suites est dans un cas similaire a celui-ci, nous calculons la somme des éléments dégénératifs et les 
-        rajoutons dans les conditions initals.
-        \par En se qui concerne la multiplication le principe est exactement le même sauf que la 
-        multiplication de deux opérateur de calcul grâce a la fonction \texttt{symmetric\_product},
-        elle est également fournie par \textsc{OreAlgebra}.
+        $[0,1,2]$ et $[0,1,1]$) ce qui donnerai comme conditions initial pour D : $[0,2,3]$.
+        Si 
+        l'on essaie de dérouler la recurence pour calculer le prochain terme, nous obtenons $D_3 = 5$,
+        mais nous remarquons que le terme $D_4$ est dégénéré (cf section \ref{sec:cons}), et ne peut 
+        être calculé. En revanche,$F_4$ et $E_4$ existent, nous avons donc décidé que lorsque l'annihilateur
+        de la somme de deux suites est dans un cas similaire à celui-ci, nous calculons la somme des
+        éléments dégénérés et les rajoutons dans les conditions initales.
+        \par En ce qui concerne la multiplication, le principe est exactement le même sauf que la 
+        multiplication de deux opérateur se calcule grâce à la fonction \texttt{symmetric\_product},
+        qui est également fournie par \textsc{OreAlgebra}.
 
 \setcounter{secnumdepth}{0}
 \section{Conclusion}
