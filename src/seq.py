@@ -92,7 +92,7 @@ class PRecSequence(object):
     TODO doc
     """
 
-    def __init__(self, cond=None, annihilator=None, const=None):
+    def __init__(self, cond=None, annihilator=None, const=None,Ore = None):
         """
         TODO doc
         """
@@ -107,14 +107,29 @@ class PRecSequence(object):
             R,Sn = OreAlgebra(A,'Sn').objgen()
             annihilator = Sn - 1
             # TODO in case of addition u_n + const, use this part of the constructor
-            
-
-        if (type(cond) == list): # The argument is a list
+           
+        data = []
+        if (type(cond) == list or type(cond) == Sequence): # The argument is a list
+             data = cond
              self.cond_init = {i:cond[i] for i in range(len(cond))}
+             
         elif (type(cond) == dict): # The argument is a dict
             self.cond_init = cond.copy()
         else:
             raise TypeError("Illegal initial value object")
+        
+
+        #guess the annihilator 
+        if(cond and not annihilator):
+            #need a list with concective element
+            if not data:
+                raise Exception("for guessing a Sequence cond must be a list or a Sequence")
+            if not Ore:
+                raise Exception("missing argument Ore")
+            if not Ore.is_S():
+                raise Exception("You don't use the Shift operator in OreAlgebra")
+            annihilator = guess(data,Ore)
+
 
 
         # verification des indices de la suite
@@ -272,7 +287,7 @@ class PRecSequence(object):
         new_cond = [x*y for x,y in zip(cond1, cond2)]
 
         return PRecSequence(new_cond,new_annihilator)
-
+    #if this really work???
     def is_const(self):
         print(self.cond_init.values())
         for i in self.cond_init.values():
@@ -301,11 +316,30 @@ class PRecSequence(object):
         _str += "value : "+str(self.to_list(9))+" ...\n"
         return "P-recurcive suite\n"+ _str
 
+
+###################################################################
+#                  maintenant dans le contrusteur                 #
+###################################################################
 def guessSequence(data,Ore):
     if not Ore.is_S():
         raise Exception("You don't use the Shift operator in OreAlgebra")
         L = guess(data,Ore)
         return -L
+
+
+def constPRecSequence(val):
+    #----until we find a best way to do that---
+    a = Sequence([val],use_sage_types= True)
+    base_ring = a[0].parent()
+    #------------------------------------------
+    A,n = base_ring["x"].objgen()
+    R,Sn = OreAlgebra(A,"Sx").objgen()
+    const = Sn - 1
+
+    return PRecSequence([val],const)    
+###################################################################
+###################################################################
+
 def ExprToSeq(expression):
     if( type(expression) != sage.symbolic.expression.Expression):
         raise TypeError("this is not an sage.symbolic.expression.Expression this is ",type(expression))
@@ -333,24 +367,6 @@ def ExprToSeq(expression):
                 continue
             else:
                 cont = False
-
-
-
-
-
-
-def constPRecSequence(val):
-    #----until we find a best way to do that---
-    a = Sequence([val],use_sage_types= True)
-    base_ring = a[0].parent()
-    #------------------------------------------
-    A,n = base_ring["x"].objgen()
-    R,Sn = OreAlgebra(A,"Sx").objgen()
-    const = Sn - 1
-
-    return PRecSequence([val],const)    
-
-
 
 
 if __name__ == "__main__" :
