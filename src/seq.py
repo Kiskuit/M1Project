@@ -95,15 +95,22 @@ class PRecSequence(object):
     def __init__(self, cond=None, annihilator=None, const=None,Ore = None):
         """
         TODO doc
+        cond : initial condition of the Sequence
+        annihilator : Recurence of the Sequence
+        const : single value for a constant Sequence
+        Ore : in the case of guessing, provide the Ore operator
         """
+        # print(cond,annihilator,const,Ore)
         # i is used for the iterator
-        self.i
+        self.i = None
         # TODO : use @classmethod instead?
+
         if const:
             if cond or annihilator:
                 raise Exception("Constant sequences must be initialized only with its constant value.")
             cond = [const]
-            A,n = const.parent()['n'].objgen()
+            A,n = ZZ['n'].objgen()
+
             R,Sn = OreAlgebra(A,'Sn').objgen()
             annihilator = Sn - 1
             # TODO in case of addition u_n + const, use this part of the constructor
@@ -125,10 +132,11 @@ class PRecSequence(object):
             if not data:
                 raise Exception("for guessing a Sequence cond must be a list or a Sequence")
             if not Ore:
+                #construct an good Ore?
                 raise Exception("missing argument Ore")
             if not Ore.is_S():
                 raise Exception("You don't use the Shift operator in OreAlgebra")
-            annihilator = guess(data,Ore)
+            annihilator = -guess(data,Ore)
 
 
 
@@ -158,6 +166,20 @@ class PRecSequence(object):
             raise Exception (err_string)
             # TODO check if param l were used when catching excn
 
+
+    def _element_constuctor(self,x):
+        return PRecSequence(const = x)
+
+    def _coerce_map_from_(self,S):
+        if S in RR:
+            return True
+
+    def __call__(self,x):
+        if(isinstance(x,PRecSequence)):
+            return x
+        if(self._coerce_map_from_(x)):
+            return self._element_constuctor(x)
+
     def __iter__(self):
         return self
 
@@ -176,7 +198,7 @@ class PRecSequence(object):
         if not start :
             start = lowest
         # start/stop cannot be lower than lowest index
-        if stop <= lowest || start < lowest :
+        if stop <= lowest or start < lowest :
             err_str = "Index out of bond, indices cannot be lower than "
             err_str += str(lowest) + "."
             raise IndexError(err_str)
@@ -238,11 +260,18 @@ class PRecSequence(object):
         # TODO
         # (R est devenu parent depuis)
         # TODO test that!
-        if isinstance(other,Integer) : # LHS is a constant integer
+        # if isinstance(other in QQ : # LHS is a constant integer
+        if other in RR:
             other = self (other)
         # TODO add other constant (rational, real, complex?...)
-        if self.parent != other.annihilator.parent() : 
-            raise TypeError ("LHS and RHS must have the same parent.")
+        try:
+            if self.parent != other.annihilator.parent() : 
+                raise TypeError ("LHS and RHS must have the same parent.")
+        except:
+            print(other.parent)
+            print(self.parent)
+            raise TypeError("Can't do the addition")
+
         new_annihilator = self.annihilator.lclm(self.parent(other.annihilator))
 
         #find degenerative case
@@ -303,14 +332,6 @@ class PRecSequence(object):
 
         #------------------
         return True
-
-    #-----------todo------------
-    def __iter__(self):
-        return self
-
-    def next(self):
-        pass
-    #-----------end todo--------
     def __repr__(self):
         _str = "recurence : "+str(self.annihilator)+"\n"
         _str += "value : "+str(self.to_list(9))+" ...\n"
@@ -357,6 +378,7 @@ def ExprToSeq(expression):
             #wrong basering fo now, need some help
             A,n = base_ring["x"].objgen()
             R,Sn = OreAlgebra(A,"Sx").objgen()
+            #error before this line
             Seq = guessSequence(val,R)
             return Seq 
         except ValueError:
@@ -417,24 +439,43 @@ if __name__ == "__main__" :
     print("somme (fib+fact)")
     print(fibfact[0:15])
 
-    print("const")
-    print(constS[0:15])
 
-    cfib = fib+constS
-    print("somme (fib+2)")
-    print(cfib[0:15])    
 
-    fibFact = fib * fact
-    print("mult")
-    print(fibFact[0:15])
+    test = PRecSequence([0,1,2,3,4,5],Ore=R)
+    print(test)
 
-    print("fib const?",fib.is_const())
-    print("constS const?",constS.is_const())
-    print("const2 const?",const2.is_const())
+    test2 = PRecSequence(const= QQ(1))
+    print("const 2")
+    print(test2)
+    print("somme de fib et 1")
+    print(fib+RR(2))
+    # print(fib+Integer(1))
+    # print("const")
+    # print(constS[0:15])
 
-    exp = factorial(n)
-    seq = ExprToSeq(exp)
-    print(seq[0:10])
+    # cfib = fib+constS
+    # print("somme (fib+2)")
+    # print(cfib[0:15])    
+
+    # fibFact = fib * fact
+    # print("mult")
+    # print(fibFact[0:15])
+
+    # print("fib const?",fib.is_const())
+    # print("constS const?",constS.is_const())
+    # print("const2 const?",const2.is_const())
+
+    # exp = factorial(n)
+    # seq = ExprToSeq(exp)
+    # print(seq[0:10])
+
+
+
+
+
+
+
+
     ###   condition = {0:0,1:1,2:7}
     ###   a1 = n*Sn**2 -Sn - 1
     ###   S1 = PRecSequence(condition,a1)
