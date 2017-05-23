@@ -98,3 +98,6 @@ ENV/
 *.aux
 *.out
 *.toc
+*.nav
+*.snm
+*.vrb
