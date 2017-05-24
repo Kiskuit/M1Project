@@ -141,8 +141,11 @@
     \label{sec:intro}
     \subsection{Suites p-récursives \& Algèbre d'Ore}
         \label{sec:prec}
-        \par Les suites sont beaucoup utilisées en mathématiques et dans différents domaines
-        scientifiques, et on cherche, comme souvent en informatique, à en avoir une
+        \par Des suites comme celle de Fibonacci et factorielle sont des suites P-récursives.
+        On trouve également beaucoup d'exemples lorsqu'on s'intéresse à des problèmes
+        de combinatoire comme la triangulation de polygones ou les nombres de Delannoy. Elles sont
+        globalement très présente dans beaucoup de domaines des mathématiques et scientifiques.
+        On cherche donc, comme souvent en informatique, à en avoir une
         représentation exacte. De plus, il est généralement important que cette représentation
         soit également efficace pour la manipulation mathématique de ces suites.
         \par On s'intéresse ici en particulier aux suites dites p-récursives.
@@ -151,9 +154,9 @@
         \begin{equation}
             \sum_{i=0}^k p_i(n) u_{n+i} = 0
         \end{equation}
-        où, les $p_i$ sont des polynômes en $n$. Il est importante de noter que contrairement
+        où les $p_i$ sont des polynômes en $n$. Il est importante de noter que contrairement
         à des suites arbitraires, les suites p-récursives, bien que comportant un nombre
-        potentiellement infini de termes, peuvent être représentées exactement simplement
+        infini de termes, peuvent être représentées exactement simplement
         avec la relation de récurrence, et les conditions initiales.
         Des exemples communs de suites p-récursives
         sont par exemple la suite de Fibonacci, ou la fonction factorielle :
@@ -171,27 +174,26 @@
         \label{sec:sage}
         \par Sage est un outil de calcul formel libre.
         Il a été créé notamment pour proposer
-        une alternative \textit{opensource} aux logiciels existants comme Mathematica,
-        Matlab, Maple \ldots Contrairement à ces logiciels, Sage s'appuie sur des outils
+        une alternative \textit{open source} aux logiciels existants comme Mathematica,
+        Matlab, Maple \ldots Plutôt que de tout ré-écrire, et réinventer la roue,
+        Sage s'appuie sur des outils
         et librairies déjà existants comme NumPy, SciPy, matplotlib, FLINT et d'autres...
         L'utilisation de ces outils est unifiée et uniformisée au travers d'un langage
         basé sur Python. Ce langage présente une syntaxe qui diffère légérement de celle
         de Python. Ainsi, Sage est doté d'un "pré-analyseur" ou "pré-parseur",
         qui transforme les idiomes Sage en pur Python.
-        Bien qu'il existe également d'autres méthodes, on ne s'est intéressé qu'à l'écriture
-        d'un module en Python au cours du projet.
         En particulier, Python 2, puisque Sage n'est pas compatible avec Python 3
         (bien que des efforts soient faits en ce sens).
         \par Bien que Sage fournisse de nombreuses librairies mathématiques,
-        il n'inclut pas encore officiellement de librairie pour l'algèbre d'Ore.
+        il n'inclut pas encore officiellement de librairie pour les algèbres d'Ore.
         Nous avons eu donc recours à une bibliothèque en cours de développement par
-        la communauté qui implémente l'algèbre d'Ore. Nous présentons certains outils
+        la communauté qui implémente les algèbres d'Ore. Nous présentons certains outils
         de cette bibliothèque
         dans la section \ref{sec:libore}, tandis que {\color{red} ref} propose une
         présentation plus générale.
     \subsection{La bibliotèque \textsc{OreAlgebra}}
         \label{sec:libore}
-        \par Nous avons évoqué le fait queSage dispose d'une syntaxe propre, qui s'appuie
+        \par Nous avons évoqué le fait que Sage dispose d'une syntaxe propre, qui s'appuie
         sur celle de Python.
         C'est celle-ci qui est utilisée dans l'article de documentation du module, et que nous
         reprendrons ici. Cela permettra également de présenter brièvement les éléments de syntaxe
@@ -210,14 +212,14 @@
     Puis nous avons commencé à discuter de l'implémentation. Bien que Sage dispose de sa propre
     syntaxe, il est d'usage d'écrire les modules en \og Python pur \fg. La syntaxe spécifique
     de Sage est surtout du sucre syntaxique pour l'interface en ligne de
-    commande. De plus, le pré-parseur de Sage n'est pas d'une robustesse à toutes épreuves,
+    commande. De plus, le pré-parseur de Sage n'est pas d'une robustesse à toute épreuve,
     et son utilisation peut engendrer des résultats non voulus, et imprévisibles. Enfin, 
     cela présente également l'intérêt de produire du code réutilisable dans un cadre plus large.
     Pour ces différentes raisons, le langage de notre implémentation a évidemment été Python
     \footnote{Plus exactement, Python 2.7.9}.
     \subsection{Objectifs \& Étapes}
         Le module que nous avons écrit est principalement constitué de la défintion
-        d'une clase.
+        d'une classe.
         Initialement, nous avons convenu d'une hierarchie d'objectifs que nous souhaitions 
         voir atteints par cette classe.
         Les objectifs prioritaires qu'il nous semblait impératif d'atteindre sont les
@@ -225,7 +227,7 @@
         \begin{itemize}
             \itemV Un \textbf{constructeur} permettant à l'utilisateur de créer un objet de notre classe,
                 en spécifiant des conditions initiales et un annhilateur.
-            \itemV La \textbf{surcharge de l'opérateur \texttt{\uline getitem\uline}}, pour permettre à
+            \itemV La \textbf{surcharge de la méthode \texttt{\uline getitem\uline}}, pour permettre à
                 l'utilisateur d'accéder à un élément de la suite.
             \itemV La \textbf{surcharge des opérations $+$ et $\times$} pour additioner et multiplier des
                 instances de la classe entre elles.
@@ -236,10 +238,10 @@
         possible :
         \begin{itemize}
             \itemV Faire en sorte que le code fonctionne dans plusieurs anneaux, notamment
-                $\mathbb{Q,R,C}$ et les corps finis $\mathbb F_p$(initialement, on se 
+                $\mathbb{Q,R,C}$ et les corps finis $\mathbb F_p$ (initialement, on se 
                 concentre sur $\mathbb Z$).
-            \itemV Un constructeur produisant une suite à partir d'une constante, permettant à terme
-                de gérer des opérations du type \emph{suite+constante}.
+            \itemV Un constructeur produisant une suite à partir d'une constante voire d'un
+                polynôme, permettant à terme de gérer des opérations du type \emph{suite+constante}.
             \itemX Une méthode pour tester si une suite est constante.
             \itemX La surcharge des opérateurs de comparaison $=$ et $\ne$.
             \itemX Une méthode cherchant un annihilateur d'ordre inférieur produisant la même suite
@@ -248,8 +250,9 @@
                 premiers termes de la suite uniquement.
         \end{itemize} \bigskip
         \par Enfin, nous avons établis des objectifs secondaires. Ceux-ci étaient essentiellement
-        des objectifs dont l'intérêt était limité. Certains ont été implémentés quand ils
-        ne requérait pas trop de réflexion : 
+        des objectifs dont l'intérêt était limité, ou qui demandent une quantité de travail et de
+        temps, que nous avons préféré attribuer à des objectifs plus important.
+        Certains ont été implémentés quand ils ne requéraient pas trop de réflexion : 
         \begin{itemize}
             \itemX La surcharge des opérateurs de décallage $<<$ et $>>$ (dont la sémantique doit
                 être clarifiée).
