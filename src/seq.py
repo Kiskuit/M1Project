@@ -102,7 +102,7 @@ class PRecSequence(object):
         """
         # print(cond,annihilator,const,Ore)
         # i is used for the iterator
-        self.i = None
+        self.i = -1
         # TODO : use @classmethod instead?
 
         if const:
@@ -166,26 +166,44 @@ class PRecSequence(object):
             raise Exception (err_string)
             # TODO check if param l were used when catching excn
 
+        # print(self.cond_init)
 
-    def _element_constuctor(self,x):
-        return PRecSequence(const = x)
+    #peut etre que un jour on utilisera ces fonctions corectement     
+    # def _element_constuctor_(self,x):
+    #     return PRecSequence(const = x)
 
-    def _coerce_map_from_(self,S):
+    # def _coerce_map_from_(self,S):
+    #     if S in RR:
+    #         return True
+    #     if S in PRecSequence:
+    #         return True
+    #     return False
+
+    #a ne pas surcharger normalement
+    # def __call__(self,x):
+    #     if(isinstance(x,PRecSequence)):
+    #         return x
+    #     if(self._coerce_map_from_(x)):
+    #         return self._element_constuctor_(x)
+    #     return None
+
+    def _mycoerce_(self,S):
         if S in RR:
-            return True
-
-    def __call__(self,x):
-        if(isinstance(x,PRecSequence)):
-            return x
-        if(self._coerce_map_from_(x)):
-            return self._element_constuctor(x)
+            return PRecSequence(const = S)
+        if isinstance(S,PRecSequence):
+            return S
+        return None
 
     def __iter__(self):
         return self
 
     def next(self):
-        self.iterator = self.annihilator.to_list(self.iterator,self.order+1)[1:]
-        return self.iterator[-1]
+        #ne fonctionnais pas 
+        # self.iterator = self.annihilator.to_list(self.iterator,self.order+1)[1:]
+        # return self.iterator[-1]  
+        self.i += 1
+        return (self[self.i])[0]
+
 
 
     def to_list(self, stop, start=None):
@@ -262,15 +280,16 @@ class PRecSequence(object):
         # TODO test that!
         # if isinstance(other in QQ : # LHS is a constant integer
         if other in RR:
-            other = self (other)
+            other = self._mycoerce_(other)
+        if not isinstance(other,PRecSequence):
+            raise TypeError ("LHS and RHS must have the same parent.")
         # TODO add other constant (rational, real, complex?...)
-        try:
-            if self.parent != other.annihilator.parent() : 
-                raise TypeError ("LHS and RHS must have the same parent.")
-        except:
-            print(other.parent)
-            print(self.parent)
-            raise TypeError("Can't do the addition")
+        # try:
+        # if not self.parent.has_coerce_map_from(other.parent): 
+        # except:
+        #     print(other.parent)
+        #     print(self.parent)
+        #     raise TypeError("Can't do the addition")
 
         new_annihilator = self.annihilator.lclm(self.parent(other.annihilator))
 
@@ -285,6 +304,8 @@ class PRecSequence(object):
                         max([0] + [elt[0]+new_annihilator.order()+1 for elt in needed_root if(elt[0].parent() == ZZ 
                                                                                         and elt >= 0 )]))
 
+
+        #a rework is needed here
         #compute enough value add Sequence
         cond1 = self.to_list(max(len_cond,order(new_annihilator),len(self.cond_init.keys()) ))
         cond2 = other.to_list(max(len_cond,order(new_annihilator),len(other.cond_init.keys())))
@@ -403,22 +424,25 @@ if __name__ == "__main__" :
     R2,Sx = OreAlgebra(A2,"Sx").objgen()
 
 
-    cond = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
+    cond = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 7:13}
     # u1 = (n-1)*(n-2)*Sn**3 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
     u1 = (n-1)*(n-2)*Sn**2 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
     s1 = PRecSequence (cond, u1)
 
-    cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 6:8, 7:13}
+    cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5,  7:13, 8:21}
     u2 = Sn**2 - Sn - 1
     # u2 = R.random_element()
     fib = PRecSequence (cond2, u2)
 
     cond3 = [1]
-    u3 = Sn - n -1
+    u3 = Sx - x -1
     # u3 = R.random_element()
     fact = PRecSequence (cond3, u3)
 
+    #const suite
     constS = constPRecSequence(2)
+
+    ##for a const test
     c1 = Sn**8 - 4*Sn**7 + 6*Sn**6 - 4*Sn**5 + Sn**4
     condc = [2,2,2,2,2,2,2,2]
     const2 = PRecSequence(condc,c1)
@@ -426,7 +450,7 @@ if __name__ == "__main__" :
     # print("s1:")
     # print (s1[20:23])
     # print (s1[8:10])
-    a = Sequence(s1[1001:1004],cr = True)
+    # a = Sequence(s1[1001:1004],cr = True)
     # print (a)
     
     print("fib:")
@@ -470,7 +494,8 @@ if __name__ == "__main__" :
     # print(seq[0:10])
 
 
-
+    # for i in fib:
+    #     print(i)
 
 
 
@@ -505,4 +530,4 @@ if __name__ == "__main__" :
     ###   print(S2.to_list(9))
     ###   print(S3.to_list(9))
 
-    #end examples
+    # #end examples
