@@ -168,16 +168,22 @@ class PRecSequence(object):
 
         # print(self.cond_init)
 
-    #peut etre que un jour on utilisera ces fonctions corectement     
-    # def _element_constuctor_(self,x):
-    #     return PRecSequence(const = x)
+    def _element_constuctor_(self,x):
+        return PRecSequence(const = x)
 
-    # def _coerce_map_from_(self,S):
-    #     if S in RR:
-    #         return True
-    #     if S in PRecSequence:
-    #         return True
-    #     return False
+    def _coerce_map_from_(self,S):
+        if S in RR:
+            return True
+        if S in PRecSequence:
+            return True
+        return False
+
+    def _mycoerce_(self,S):
+        if S in RR:
+            return PRecSequence(const = S)
+        if isinstance(S,PRecSequence):
+            return S
+        return None
 
     #a ne pas surcharger normalement
     # def __call__(self,x):
@@ -187,18 +193,10 @@ class PRecSequence(object):
     #         return self._element_constuctor_(x)
     #     return None
 
-    def _mycoerce_(self,S):
-        if S in RR:
-            return PRecSequence(const = S)
-        if isinstance(S,PRecSequence):
-            return S
-        return None
-
     def __iter__(self):
         return self
 
     def next(self):
-        #ne fonctionnais pas 
         # self.iterator = self.annihilator.to_list(self.iterator,self.order+1)[1:]
         # return self.iterator[-1]  
         self.i += 1
@@ -317,6 +315,12 @@ class PRecSequence(object):
         # pass
 
     def __mul__(self,other):
+        if other in RR:
+            other = self._mycoerce_(other)
+        if not isinstance(other,PRecSequence):
+            raise TypeError ("LHS and RHS must have the same parent.")
+
+
         new_annihilator = self.annihilator.symmetric_product(self.parent(other.annihilator))
 
         #find degenerative case
@@ -464,38 +468,50 @@ if __name__ == "__main__" :
     print(fibfact[0:15])
 
 
-
-    test = PRecSequence([0,1,2,3,4,5],Ore=R)
-    print(test)
-
-    test2 = PRecSequence(const= QQ(1))
-    print("const 2")
-    print(test2)
-    print("somme de fib et 1")
-    print(fib+RR(2))
-    # print(fib+Integer(1))
-    # print("const")
-    # print(constS[0:15])
-
-    # cfib = fib+constS
-    # print("somme (fib+2)")
-    # print(cfib[0:15])    
-
-    # fibFact = fib * fact
-    # print("mult")
-    # print(fibFact[0:15])
-
-    # print("fib const?",fib.is_const())
-    # print("constS const?",constS.is_const())
-    # print("const2 const?",const2.is_const())
-
-    # exp = factorial(n)
-    # seq = ExprToSeq(exp)
-    # print(seq[0:10])
+    print("somme de fib/ 2")
+    print(fib*0.5)
+    print("somme de fib + 2")
+    print(fib+2)
 
 
-    # for i in fib:
-    #     print(i)
+
+    # test = PRecSequence([0,1,2,3,4,5],Ore=R)
+    # print(test)
+
+    # test2 = PRecSequence(const= QQ(1))
+    # print("const 2")
+    # print(test2)
+    # print("somme de fib et 1")
+    # print(fib+RR(2))
+    # # print(fib+Integer(1))
+    # # print("const")
+    # # print(constS[0:15])
+
+    # print("test guessing")
+    # print(PRecSequence(cond = [1,3,5,7,9,11], Ore = R))
+    # print(PRecSequence(cond = [0,2,4,8,16,32,64], Ore = R))
+    # print(PRecSequence(cond = [0,1,2,3,4,5], Ore = R))
+    # print(PRecSequence(cond = [0,1], Ore = R))
+
+    # # cfib = fib+constS
+    # # print("somme (fib+2)")
+    # # print(cfib[0:15])    
+
+    # # fibFact = fib * fact
+    # # print("mult")
+    # # print(fibFact[0:15])
+
+    # # print("fib const?",fib.is_const())
+    # # print("constS const?",constS.is_const())
+    # # print("const2 const?",const2.is_const())
+
+    # # exp = factorial(n)
+    # # seq = ExprToSeq(exp)
+    # # print(seq[0:10])
+
+
+    # # for i in fib:
+    # #     print(i)
 
 
 
