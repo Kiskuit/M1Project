@@ -341,10 +341,10 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 \begin{frame}
 \frametitle{Addition et multiplication}
 \begin{center}
-\begin{block}{Surcharger l'addition}
+\begin{block}{l'addition}
     \begin{itemize}
-        \item L'addition $+$ correspond à l'opérateur \texttt{\uline add\uline} en Python
-        \item Utilisation de \texttt{lclm}
+        \item Trouver un operateur qui annule les deux termes
+        \item Trouver de nouvelle conditions initials
     \end{itemize}
 \end{block}
 \vspace{1cm}
@@ -360,6 +360,26 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 
 %------------------------------------------------
 
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Addition et multiplication}
+\begin{center}
+\begin{exampleblock}{Utiliser les facteurs}
+    \begin{align*}
+        \textnormal{const : } &C_{n+1} - C_n = 0,\qquad E_0 = 2,\\
+        \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
+        \textnormal{Leur Sommme : } &S_{n+3} - 2*S_{n+2} + S_n = 0 \\
+        &S_0 = 2, S_1 = 3, S_2 = 3\\
+    \end{align*}\\
+    l'annihilateur annule les deux suites\\
+    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34,...]\\
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2,..]\\
+\end{exampleblock}
+\end{center}
+\end{frame}
+
+%------------------------------------------------
 \begin{frame}
 \frametitle{Addition et multiplication - Procurer des conditions supplémentaires}
 \begin{center}
