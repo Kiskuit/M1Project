@@ -176,7 +176,20 @@ et ses conditions initiales$^*$
 \begin{frame}
 \frametitle{Présentation du module}
 \begin{center}
-\emph{TODO}
+\begin{alertblock}{Problématique}
+    Créer un module permettant la manipulation des suites p-récursives
+\end{alertblock}
+\vspace{0.6cm}
+\begin{block}{Caractéristiques}
+    \begin{itemize}
+        \item {\small En Python}
+        \item Basé sur le modèle de programmation objet : une classe
+        \item Surcharge d'opérateurs
+        \item Des tests
+    \end{itemize}
+\end{block}
+\vspace{0.6cm}
+Notre classe n'étend aucune classe pré-éxistante.
 \end{center}
 \end{frame}
 
@@ -184,17 +197,34 @@ et ses conditions initiales$^*$
 \begin{frame}
 \frametitle{Objectifs du module}
 \begin{center}
-    \emph{TODO}
 \begin{block}{Objectifs principaux}
+    \begin{itemize}
+        \item Un constructeur
+        \item Les opérations $+$ et $\times$
+        \item Une fonction pour calculer un élément
+    \end{itemize}
 \end{block}
 \pause
 \begin{minipage}{0.45\textwidth} \begin{center}
     \begin{block}{Objectifs importants}
+        \begin{itemize}
+            \item Travailler dans différents anneaux
+            \item Des suites constantes
+            \item Une méthode qui teste si une suite est constante
+            \item Les tests d'égalité/inégalité
+            \item Un constructeur qui devine la récurrence
+        \end{itemize}
     \end{block}
 \end{center} \end{minipage}
 \hspace{2ex} \pause
 \begin{minipage}{0.45\textwidth} \begin{center}
     \begin{block}{Objectifs secondaires}
+        \begin{itemize}
+            \item Les opérateurs $<<$ et $>>$
+            \item Un itérateur (infini)
+            \item La division par une constante
+            \item Un constructeur à partir d'une expression symbolique
+        \end{itemize}
     \end{block}
 \end{center} \end{minipage}
 \end{center}
@@ -205,16 +235,57 @@ et ses conditions initiales$^*$
 \begin{frame}
 \frametitle{Constructeur}
 \begin{center}
-C'est la méthode appelée par Python lors d'une instanciation de la classe.
+C'est la méthode appelée par Python lors d'une instanciation de la classe.\\
+C'est la première interaction de l'utilisateur avec le module.\\
+\begin{block}{Comportement par défaut}
+    \texttt{ u = PRecSequence (conditions,annihilateur) }\\
+    \texttt{conditions} est un dictionnaire\\
+    \texttt{annihilateur} est un objet du module \textsc{OreAlgebra}\\
+\end{block}
+\begin{block}{Comportements secondaires}
+    D'autres comportements sont possibles, grâce aux arguments optionnels de Python
+    \begin{itemize}
+        \item Création d'une suite constante
+        \item "Guessing" a partir d'une liste d'éléments
+    \end{itemize}
+\end{block}
+{\color{blue} Faut-il remplacer l'utilisation des arguments mots-clefs par le 
+    décorateur \texttt{@classmethod}?}
 \end{center}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Constructeur}
+\frametitle{Constructeur - Problèmes}
 \begin{center}
-\emph{TODO}
+\begin{alertblock}{Les valeurs dégénérées}
+    Lorsque le polynôme dominant a des racines dans $\mathbb Z$ :\\
+    $(n-1)u_{n+1} - u_n =0, u_0=1$\hspace{1cm}$u_0=1,u_1=(-1)u_0=-1, u_2=???$
+\end{alertblock}
+\pause
+\vspace{1cm}
+\begin{exampleblock}{Les conditions initiales supplémentaires}
+    Il est nécessaire de permettre de fixer des conditions supplémentaires.\\
+    \pause
+    \textbf{1\iere{} idée} : Obliger l'utilisateur à renseigner les valeurs dégénérées. Obliger 
+    l'utilisateur à saisir \textit{toutes} les valeurs jusqu'à la dernière racine.\\
+    \pause
+    \textbf{2\ieme{} idée} : Lever des exceptions
+\end{exampleblock}
+\end{center}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Constructeur - Conditions initiales}
+\begin{center}
+{\large Comment traiter les conditions initiales supplémentaires?}
+\begin{block}{Les valeurs n'influent pas le calcul}
+\end{block}
+\begin{block}{Les valeurs influent sur les termes suivants}
+\end{block}
 \end{center}
 \end{frame}
 
