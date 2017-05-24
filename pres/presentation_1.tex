@@ -37,6 +37,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{pifont}
 
+\newlength{\charwidth}
+\setlength{\charwidth}{\widthof{\S}}
+\newcommand{\uline}{\underline{\hspace{2\charwidth}}}
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
@@ -113,7 +116,6 @@ et ses conditions initiales$^*$
 \frametitle{Algèbre d'Ore}
 \begin{center}
 \emph{TODO}\\
-\emph{2nd slide?}
 \end{center}
 \end{frame}
 
@@ -157,7 +159,7 @@ et ses conditions initiales$^*$
                     R.<n> = PolynomialRing(ZZ)\\
                     \hspace{1.3ex}A.<Sn> = OreAlgebra(R)
                 }
-            \item Les fonctions \texttt{lclm} et \texttt{to\_list} pour $+/\times$\\
+            \item Les fonctions \texttt{lclm} et \texttt{symmetric\_product} pour $+/\times$\\
                 \texttt{
                     annihilSum = annihil1.lclm(annihil2)\\
                     \hspace{1.3ex}annihilProd = annihil1.symmetric\_product(annihil2)
@@ -283,8 +285,12 @@ C'est la première interaction de l'utilisateur avec le module.\\
 \begin{center}
 {\large Comment traiter les conditions initiales supplémentaires?}
 \begin{block}{Les valeurs n'influent pas le calcul}
+    $u_{n+2} - u_{n+1} - u_n = 0, u_0=0, u_1=1, u_5=6$\\
+    Les valeurs de la suite sont $(0,1,1,2,3,6,8,13,21\ldots)$
 \end{block}
 \begin{block}{Les valeurs influent sur les termes suivants}
+    $u_{n+2} - u_{n+1} - u_n = 0, u_0=0, u_1=1, u_5=6$\\
+    Les valeurs de la suite sont $(0,1,1,2,3,6,9,15,24\ldots)$
 \end{block}
 \end{center}
 \end{frame}
@@ -292,18 +298,41 @@ C'est la première interaction de l'utilisateur avec le module.\\
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{getitem}
+\frametitle{Accéder à un élément de la suite}
 \begin{center}
-\emph{TODO}
+Il faut surcharger l'opérateur \texttt{\uline getitem\uline}, qui permet en Python
+d'accéder à l'élément $n$ : \texttt{fibo[$n$]} ou \texttt{fibo[$n_1:n_2$]}.
+\begin{block}{Première méthode : \texttt{to\_list}}
+    La classe de notre annihilateur propose \texttt{to\_list}, qui calcule récursivement tous
+    les termes jusqu'à $n$.
+    \begin{itemize}
+        \item Facile à implémenter
+        \item Mais lent
+    \end{itemize}
+\end{block}
+\begin{block}{Deuxième méthode : \texttt{forward\_matrix\_bsplit}}
+    Utiliser l'algèbre linéaire pour calculer directement le terme $n$
+    \begin{itemize}
+        \item Théoriquement plus rapide
+        \item Souffre d'un temps d'amorce
+    \end{itemize}
+\end{block}
 \end{center}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{getitem}
+\frametitle{Optimiser \texttt{\uline getitem \uline}}
 \begin{center}
-\emph{TODO}
+Nous avons comparé les temps d'exécution pour les deux méthodes.
+\begin{figure}
+    \includegraphics[scale=0.4]{graphe}
+\end{figure}
+{\scriptsize Rapport du temps avec \texttt{to\_list} sur le temps avec 
+\texttt{forward\_matrix\_bsplit}.}\\
+\vspace{1cm}
+La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 \end{center}
 \end{frame}
 
@@ -312,16 +341,41 @@ C'est la première interaction de l'utilisateur avec le module.\\
 \begin{frame}
 \frametitle{Addition et multiplication}
 \begin{center}
-\emph{TODO}
+\begin{block}{Surcharger l'addition}
+    \begin{itemize}
+        \item L'addition $+$ correspond à l'opérateur \texttt{\uline add\uline} en Python
+        \item Utilisation de \texttt{lclm}
+    \end{itemize}
+\end{block}
+\vspace{1cm}
+\begin{block}{Surcharger la multiplication}
+    \begin{itemize}
+        \item La multiplication $\times$ correspond à l'opérateur \texttt{\uline mul\uline} en
+            Python
+        \item Utilisation de \texttt{symmetric\_product}
+    \end{itemize}
+\end{block}
 \end{center}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{Addition et multiplication}
+\frametitle{Addition et multiplication - Procurer des conditions supplémentaires}
 \begin{center}
-\emph{TODO}
+\begin{alertblock}{Termes dégénérés dans les sommes/produits}
+    Le coefficient dominant de certains produits ou sommes ont des racines dans $\mathbb Z$.
+\end{alertblock}
+\begin{exampleblock}{Utiliser les facteurs}
+    \begin{align*}
+        \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, N_1 = 1\\
+        \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
+        \textnormal{Leur Sommme : } &(n - 1)D_{n+3} + (-2n + 1)D_{n+2} + D_{n+1} + nD_n = 0, \\
+        &D_0 = 0, D_1 = 2, D_2 = 3\\
+    \end{align*}\\
+    \vspace{-0.7cm}
+    $D_4$ est dégénéré, mais $E_4$ et $F_4$ existent.
+\end{exampleblock}
 \end{center}
 \end{frame}
 
