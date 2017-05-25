@@ -239,9 +239,12 @@ class PRecSequence(object):
         # For low values of start, recursion is faster than forward_matrix
         # TODO actual test to estimate the value at which the shift happen
         # TODO check value in dict
+
+
         if start < 100 :
+            vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())  ]
+            # vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
             # Use recursive method
-            vals = [self.cond_init[i] for i in sorted (self.cond_init.keys())]
             if(start < len(vals) - self.order):
                 ret = vals[start:]
             else:
@@ -254,13 +257,16 @@ class PRecSequence(object):
             if Q==0:
                 # This should not happen since __init__ must look for problems !
                 #   (Or does it? is it really needed?)
-                raise Exception ("(THIS SHOULD NOT HAPPEN) Degenerated values in the sequence.")
+                raise Exception ("Degenerated values in the sequence.")
             for e in (P*Matrix([[f] for f in vals[-self.order:]]))/Q :
                 ret += e
 
         # ret[-order:] are just enough cond to do the recursion,
         #  the final [order:] is to not duplicate elements that already are in ret
         ret = self.annihilator.to_list(ret, stop-start,start)[:stop-start:step]
+
+        if None in ret:
+            raise Exception ("Degenerated values in the sequence.")
         # TODO handle step so to not return every element if not needed
 
         return ret
@@ -417,133 +423,67 @@ def ExprToSeq(expression):
 
 
 if __name__ == "__main__" :
-    #start examples
-    # condition = {-2:-2,-1:-1,0:0,1:1,2:1,3:2,4:3,8:21}
 
+
+    # algebre d'Ore en les variable Sn et n
     A,n = ZZ["n"].objgen()
     R,Sn = OreAlgebra(A,"Sn").objgen()
 
-
+    # algebre d'Ore en les variable Sx et x
     A2,x = ZZ["x"].objgen()
     R2,Sx = OreAlgebra(A2,"Sx").objgen()
-
-
+    
+    ##                                 ##
+    # Suite avec des racines Dégénerés  #
+    ##                                 ##
     cond = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5, 7:13}
     # u1 = (n-1)*(n-2)*Sn**3 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
-    u1 = (n-1)*(n-2)*Sn**2 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
+    u1 = (n-1)*(n-2)*(n-203)*Sn**2 - (n-1)*(n-2)*3*Sn - (n-1)*(n-2)*8
     s1 = PRecSequence (cond, u1)
+    print("s1:")
+    print (s1[20:23])
+    print (s1[103:110])
+    ## fin test suite avec racine dégénéré ##########""
 
-    cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5,  7:13, 8:21}
+
+    ##  fibonacci  ##
+    cond2 = {0:0, 1:1, 2:1, 3:2, 4:3, 5:5}
     u2 = Sn**2 - Sn - 1
-    # u2 = R.random_element()
     fib = PRecSequence (cond2, u2)
-
-    cond3 = [1]
-    u3 = Sx - x -1
-    # u3 = R.random_element()
-    fact = PRecSequence (cond3, u3)
-
-    #const suite
-    constS = constPRecSequence(2)
-
-    ##for a const test
-    c1 = Sn**8 - 4*Sn**7 + 6*Sn**6 - 4*Sn**5 + Sn**4
-    condc = [2,2,2,2,2,2,2,2]
-    const2 = PRecSequence(condc,c1)
-
-    # print("s1:")
-    # print (s1[20:23])
-    # print (s1[8:10])
-    # a = Sequence(s1[1001:1004],cr = True)
-    # print (a)
-    
-    print("fib:")
+    print("fib[0:10]:")
     print(fib[0:10])
 
-    print("fact")
+    ##  factoriel  ##
+    cond3 = [1]
+    u3 = Sx - x -1
+    fact = PRecSequence (cond3, u3)
+    print("fact[0:10]")
     print(fact[0:10])
 
+    ##  somme de fibonacci et factoriel  ##
     fibfact = fib + fact
-    print("somme (fib+fact)")
+    print("somme (fib+fact)[0:15]")
     print(fibfact[0:15])
 
-
-    print("somme de fib/ 2")
+    ## utilisation de conversion dans mul
+    print("fibonacci * 0.5")
     print(fib*0.5)
+    ## utilisation de conversion dans add
     print("somme de fib + 2")
     print(fib+2)
 
+    ##  const suites  ##
+    SConst = constPRecSequence(2)
+    Sconst2 = PRecSequence(const = 3)
 
+    ## ajout de fib et d'une suite constante
+    print("somme de Sconst2 + fib")
+    print(Sconst2 + fib)
 
-    # test = PRecSequence([0,1,2,3,4,5],Ore=R)
-    # print(test)
+    ##  Test Guessing 1  ##
+    print("test guessing")
+    print(PRecSequence(cond = [1,3,5,7,9,11], Ore = R))         #ok
+    print(PRecSequence(cond = [0,2,4,8,16,32,64], Ore = R))     #ok
+    print(PRecSequence(cond = [0,1,2,3,4,5], Ore = R))          #ok
+    print(PRecSequence(cond = [0,1], Ore = R))                  #fail "no relation found"
 
-    # test2 = PRecSequence(const= QQ(1))
-    # print("const 2")
-    # print(test2)
-    # print("somme de fib et 1")
-    # print(fib+RR(2))
-    # # print(fib+Integer(1))
-    # # print("const")
-    # # print(constS[0:15])
-
-    # print("test guessing")
-    # print(PRecSequence(cond = [1,3,5,7,9,11], Ore = R))
-    # print(PRecSequence(cond = [0,2,4,8,16,32,64], Ore = R))
-    # print(PRecSequence(cond = [0,1,2,3,4,5], Ore = R))
-    # print(PRecSequence(cond = [0,1], Ore = R))
-
-    # # cfib = fib+constS
-    # # print("somme (fib+2)")
-    # # print(cfib[0:15])    
-
-    # # fibFact = fib * fact
-    # # print("mult")
-    # # print(fibFact[0:15])
-
-    # # print("fib const?",fib.is_const())
-    # # print("constS const?",constS.is_const())
-    # # print("const2 const?",const2.is_const())
-
-    # # exp = factorial(n)
-    # # seq = ExprToSeq(exp)
-    # # print(seq[0:10])
-
-
-    # # for i in fib:
-    # #     print(i)
-
-
-
-
-
-    ###   condition = {0:0,1:1,2:7}
-    ###   a1 = n*Sn**2 -Sn - 1
-    ###   S1 = PRecSequence(condition,a1)
-
-    ###   condition = {0:0,1:1,4:0}
-    ###   a2 = (n-2)*Sn**2 -Sn - 1
-    ###   S2 = PRecSequence(condition,a2)
-
-    ###   condition = {0:0,1:1}
-    ###   a4 = Sn**2 - Sn - 1
-    ###   S4 = PRecSequence(condition,a4)
-    ###   print (S4[0:10])
-    ###   try :
-    ###       S2.to_list(-2)
-    ###   except IndexError as ie:
-    ###       print ("S2.to_list(-2) correctly raises an exception.")
-    ###   else :
-    ###       print ("No exception : problem.")
-
-    ###   condition = {0:0,1:1,2:2,13:100} #good initialisation
-    ###   # condition = {0:0,1:1,2:2} # miss some value
-    ###   a3 = (n-10)*Sn**3 + Sn**2 -Sn - 1
-    ###   S3 = PRecSequence(condition,a3)
-    ###   
-    ###   print(S1.to_list(9))
-    ###   print(S1)
-    ###   print(S2.to_list(9))
-    ###   print(S3.to_list(9))
-
-    # #end examples
