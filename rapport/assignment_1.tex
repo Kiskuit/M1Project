@@ -374,6 +374,8 @@
         importante de l'avancée du projet.
         L'annihilateur de la somme de deux suites est definie comme le plus petit 
         multiple commun à gauche (\texttt{lclm}) des deux annihilateurs des suite sommées.
+        C'est à dire, que c'est l'operateur de plus petit degré qui vérifie que la recurences des 
+        deux suites.
         La fonction qui calcule le \texttt{lclm} de deux suites est fournie par la bibliothèque
         \textsc{OreAlgebra}. 
         Si la nouvelle suite est d'odre $n$ alors ses conditons initales seront la somme des 
@@ -407,6 +409,19 @@
         \par En ce qui concerne la multiplication, le principe est exactement le même sauf que la 
         multiplication de deux opérateur se calcule grâce à la fonction \texttt{symmetric\_product},
         qui est également fournie par \textsc{OreAlgebra}.
+        par exemple si l'on veux multiplier.\\
+        Pour ce qui est de la somme et multiplication de suite par une constante, cela est possible, mais 
+        note module ne respecte pas les principe de Sage sur la coercion.
+        \begin{align*}
+            &R,n = ZZ["n"].objgen()\\
+            &A,Sn = OreAlgebra(R,"Sn").objgen()\\
+            &catalan = PRecSequence([1,1],(n + 2)*Sn - 4*n - 2)\\
+            &pascal = PRecSequence([1,1],Sn**2 - Sn - 1)\\
+            &s1 = pascal * catalan \# fonctionne\\
+            &s2 = catalan + 2 \# fonctionne\\
+            &s3 = 1 + catalan \# ne fonctionne pas\\
+        \end{align*} \\
+
 
     \subsection{Autres objectifs}
 
