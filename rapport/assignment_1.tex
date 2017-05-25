@@ -487,9 +487,9 @@ Sn^2 - Sn - 1
             &A,Sn = OreAlgebra(R,"Sn").objgen()\\
             &catalan = PRecSequence([1,1],(n + 2)*Sn - 4*n - 2)\\
             &pascal = PRecSequence([1,1],Sn**2 - Sn - 1)\\
-            &s1 = pascal * catalan \# fonctionne\\
-            &s2 = catalan + 2 \# fonctionne\\
-            &s3 = 1 + catalan \# ne fonctionne pas\\
+            &s1 = pascal * catalan \qquad\# fonctionne\\
+            &s2 = catalan + 2 \qquad\# fonctionne\\
+            &s3 = 1 + catalan \qquad\# ne fonctionne pas\\
         \end{align*} \\
 
 
@@ -519,3 +519,7 @@ Sn^2 - Sn - 1
 
 \end{document}
 
+
+%grace a ce projet j'ai pu apprendre le coté orienté objet du python que je n'avais jamais vu pour le moment
+%de même j'ai appris a manipuler SageMath et pas les fonctions du paquet oreAlgebra
+%de maniere un peu plus large j'ai aussi appris le LateX 
