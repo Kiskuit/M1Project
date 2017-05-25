@@ -101,3 +101,5 @@ ENV/
 *.nav
 *.snm
 *.vrb
+*.bbl
+*.blg

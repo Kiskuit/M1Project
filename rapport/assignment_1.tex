@@ -4,11 +4,11 @@
 
 \documentclass[12pt]{article}
 
-\usepackage{fancyhdr} % Required for custom headers
-\usepackage{lastpage} % Required to determine the last page for the footer
-\usepackage{extramarks} % Required for headers and footers
-\usepackage{graphicx} % Required to insert images
-\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{extramarks}
+\usepackage{graphicx}
+\usepackage{lipsum}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -23,22 +23,10 @@
 \usepackage{fancyvrb}
 \usepackage{xparse}
 \usepackage{tgcursor}
-\usepackage{listings}
-\lstset{
-    basicstyle=\ttfamily,
-    mathescape
-}
 
-% Margins
-%\topmargin=-0.45in
-%\evensidemargin=0in
-%\oddsidemargin=0in
-%\textwidth=6.5in
-%\textheight=9.0in
-%\headsep=0.25in 
 \setmargrb{3cm}{2cm}{3cm}{2cm}
 
-\linespread{1.1} % Line spacing
+\linespread{1.2} % Line spacing
 
 % Set up the header and footer
 \pagestyle{fancy}
@@ -226,7 +214,7 @@
         Nous avons eu donc recours à une bibliothèque en cours de développement par
         la communauté qui implémente les algèbres d'Ore. Nous présentons certains outils
         de cette bibliothèque
-        dans la section \ref{sec:libore}, tandis que {\color{red} ref} propose une
+        dans la section \ref{sec:libore}, tandis que \cite{ore_pols} propose une
         présentation plus générale.
     \subsection{La bibliotèque \textsc{OreAlgebra}}
         \label{sec:libore}
@@ -304,8 +292,8 @@ Sn^2 - Sn - 1
                 concentre sur $\mathbb Z$).
             \itemV Un constructeur produisant une suite à partir d'une constante voire d'un
                 polynôme, permettant à terme de gérer des opérations du type \emph{suite+constante}.
-            \itemX Une méthode pour tester si une suite est constante.
-            \itemX La surcharge des opérateurs de comparaison $=$ et $\ne$.
+            \itemV Une méthode pour tester si une suite est constante.
+            \itemV La surcharge des opérateurs de comparaison $=$ et $\ne$.
             \itemX Une méthode cherchant un annihilateur d'ordre inférieur produisant la même suite
                 si il en existe un.
             \itemV Un constructeur, qui fabrique l'opérateur de récurrence à partir des 
@@ -402,7 +390,6 @@ Sn^2 - Sn - 1
         calcule tous les éléments dans l'intervalle $[0,n]$. Or ceci est complètement ineficace
         dans le cas où on ne veut que l'élément $n$. Pour pallier ce problème, notre encadrant nous 
         a suggéré d'utiliser la fonction \texttt{forward\_matrix\_bsplit}.
-        {\color{red} Explications fctmt ou boite noire.}
         Cette fonction permet de calculer directement un élément de la suite, sans calculer tous ses
         prédécesseurs
         \footnote{Plus précisément, cette fonction calcule $k$ éléments, où  $k$ est l'ordre de la
@@ -487,36 +474,77 @@ Sn^2 - Sn - 1
         multiplication de deux opérateur se calcule grâce à la fonction \texttt{symmetric\_product},
         qui est également fournie par \textsc{OreAlgebra}.
         par exemple si l'on veux multiplier.\\
-        Pour ce qui est de la somme et multiplication de suite par une constante, cela est possible, mais 
-        note module ne respecte pas les principe de Sage sur la coercion.
-        \begin{align*}
-            &R,n = ZZ["n"].objgen()\\
-            &A,Sn = OreAlgebra(R,"Sn").objgen()\\
-            &catalan = PRecSequence([1,1],(n + 2)*Sn - 4*n - 2)\\
-            &pascal = PRecSequence([1,1],Sn**2 - Sn - 1)\\
-            &s1 = pascal * catalan \qquad\# fonctionne\\
-            &s2 = catalan + 2 \qquad\# fonctionne\\
-            &s3 = 1 + catalan \qquad\# ne fonctionne pas\\
-        \end{align*} \\
+        %Pour ce qui est de la somme et multiplication de suite par une constante, cela est possible, mais 
+        %note module ne respecte pas les principe de Sage sur la coercion.
+        %\begin{align*}
+        %    &R,n = ZZ["n"].objgen()\\
+        %    &A,Sn = OreAlgebra(R,"Sn").objgen()\\
+        %    &catalan = PRecSequence([1,1],(n + 2)*Sn - 4*n - 2)\\
+        %    &pascal = PRecSequence([1,1],Sn**2 - Sn - 1)\\
+        %    &s1 = pascal * catalan \qquad\# fonctionne\\
+        %    &s2 = catalan + 2 \qquad\# fonctionne\\
+        %    &s3 = 1 + catalan \qquad\# ne fonctionne pas\\
+        %\end{align*} \\
 
 
     \subsection{Autres objectifs}
+        En plus des objectifs principaux, nous avons rempli certains des autres objectifs.
+        Par exemple, la possibilité d'utiliser d'autre anneaux que $\mathbb Z$ (sur lequel
+        nous nous sommes concentrés pendant le développement) est venue, et de manière assez
+        surprenante, "naturellement". Nous n'avons en effet eu pas ou peu à travailler
+        spécifiquement en adaptant le code à $\mathbb Z$, et il fonctionne ainsi également
+        pour $\mathbb Q $ et $\mathbb R $. Nous n'avons par contre pas essayé avec des anneaux
+        dont la structure est plus compliquée comme $\mathbb C$ ou $\mathbb F_p$.\\
+        \par En ce qui concerne la manipulation des suites constantes, nous avons avec
+        succès implémenté la possibilité de changer le comportement du constructeur de la classe
+        dans le cas où il reçoit une constante en paramètre. Nous avons également implémenter la
+        possibilité de tester si une suite est constante, ce qui incidemment nous permet
+        également de tester si deux suites sont égales. Il suffit en effet de faire la différence
+        des deux suites, et tester si la différence est constante. Si c'est le cas, nous 
+        vérifions que cette constante est 0.\\
+        \par Enfin, la fonctionnalité de deviner la récurrence à partir des premiers
+        termes d'une suite a simplement consister à un appel à la fonction \texttt{guess}
+        de \textsc{OreAlgebra}.
 
 \setcounter{secnumdepth}{0}
 \section{Conclusion}
-        Dans l'ensemble, nous avons réussi à développer une classe répondant aux objectifs
-        principaux que nous nous étions fixés.
-        Celle-ci permet une manipulation basique des suites P-récursives 
-        et propose également des fonctionnalités secondaires, telle que la possibilité de travailler
-        dans différents ensembles ($\mathbb{Z,Q,R}$, nous n'avons pas testé $\mathbb{C}$ et 
-        $\mathbb F_p$), ou bien la manipulation de constantes comme une suite récursive.\\
-        Les principales difficultés que nous avons rencontrées, ont été pour la plupart liées
-        à des problèmes de définitions, ou de paradigme. Pour les contourner, il a fallu
-        se mettre à la place de l'utilisateur du module, et comprendre ce qu'il en attend lorsqu'il choisit
-        de l'utiliser. Certains dilemmes n'ont pas de solution unique, et dépendent du cas spécifique
-        auquel est confronté l'utilisateur. Pour cette raison, nous nous sommes efforcés de rester 
-        généraliste dans la manière dont nous traitions les problèmes, et de rendre les traitements
-        spécifiques optionnels.
+    Dans l'ensemble, nous avons réussi à développer une classe répondant aux objectifs
+    principaux que nous nous étions fixés.
+    Celle-ci permet une manipulation basique des suites P-récursives 
+    et propose également des fonctionnalités secondaires, telle que la possibilité de travailler
+    dans différents ensembles ($\mathbb{Z,Q,R}$, nous n'avons pas testé $\mathbb{C}$ et 
+    $\mathbb F_p$), ou bien la manipulation de constantes comme une suite récursive.\\
+    Les principales difficultés que nous avons rencontrées, ont été pour la plupart liées
+    à des problèmes de définitions, ou de paradigme. Pour les contourner, il a fallu
+    se mettre à la place de l'utilisateur du module, et comprendre ce qu'il en attend lorsqu'il choisit
+    de l'utiliser. Certains dilemmes n'ont pas de solution unique, et dépendent du cas spécifique
+    auquel est confronté l'utilisateur. Pour cette raison, nous nous sommes efforcés de rester 
+    généraliste dans la manière dont nous traitions les problèmes, et de rendre les traitements
+    spécifiques optionnels.\\
+    \par Aujourd'hui le recul nous pouvons affirmer que nous aurions fait certaines choses
+    différemment, ou d'autres choix
+    comme par exemple la manière de traiter les singularités et les conditions
+    initiales. Nous sommes cependant satisfaits du travail accompli dans l'ensemble.\\
+    \par Concernant les perspectives d'ammélioration, il y a bien sur la complétion des objectifs
+    encore non atteints, mais également la possibilité de se rapprocher des directives de
+    développement de Sage. Il existe également un axe de généralisation et la systématisation
+    de cette approche à d'autres objets vivant dans des algèbres d'Ore.\\
+    \subsection*{Conclusions personnelles}
+        \textbf{Aurélien} :
+        Grâce à ce projet j'ai pu apprendre le côté orienté objet de Python que je n'avais jamais vu
+        jusqu'à maintenant.
+        De même j'ai appris à manipuler et me à servir SageMath et les fonctions du module 
+        \textsc{OreAlgebra}. J'ai également pu appren à utiliser \LaTeX.\\[1cm]
+        \par \textbf{Mathis} : Ce projet m'a permis de renforcer mes connaissances en Python.
+        \c{C}a a également été l'occasion de se plonger dans un projet de grande ampleur.
+        En lire le code, et apprendre à essayer de développer dans ce cadre sont des expériences qui,
+        d'après moi, font le plus défaut aux étudiants en université.
+
+\newpage
+\bibliographystyle{abbrv}
+\nocite{*}
+\bibliography{PSFPN.bib}
+
         
        
 
@@ -527,6 +555,3 @@ Sn^2 - Sn - 1
 \end{document}
 
 
-%grace a ce projet j'ai pu apprendre le coté orienté objet du python que je n'avais jamais vu pour le moment
-%de même j'ai appris a manipuler SageMath et pas les fonctions du paquet oreAlgebra
-%de maniere un peu plus large j'ai aussi appris le LateX 
