@@ -151,6 +151,7 @@
 %----------------------------------------------------------------------------------------
 \section{Introduction}
     \label{sec:intro}
+    Le code est disponible sur github, à l'adresse suivante : \url{https://github.com/Kiskuit/M1Project}
     \subsection{Suites p-récursives \& Algèbre d'Ore}
         \label{sec:prec}
         \par Des suites comme celle de Fibonacci et factorielle sont des suites P-récursives.
@@ -202,7 +203,7 @@
         \par Sage est un outil de calcul formel libre.
         Il a été créé notamment pour proposer
         une alternative \textit{open source} aux logiciels existants comme Mathematica,
-        Matlab, Maple \ldots Plutôt que de tout ré-écrire, et réinventer la roue,
+        Matlab, \mbox{Maple \ldots} Plutôt que de tout ré-écrire, et réinventer la roue,
         Sage s'appuie sur des outils
         et librairies déjà existants comme NumPy, SciPy, matplotlib, FLINT et d'autres...
         L'utilisation de ces outils est unifiée et uniformisée au travers d'un langage
@@ -250,9 +251,6 @@ Sn^2 - Sn - 1
 
 \section{Méthodologie}
     \label{sec:methodo}
-    %Ainsi, Sage est doté d'un "pré-analyseur" ou "pré-parseur",
-        qui transforme les idiomes Sage en pur Python.
-
     \par La première tâche à laquelle nous nous sommes attelés a été une recherche
     bibliographique,
     pour comprendre le sujet (les suites p-récursives), et nos outils (Sage, Python et la 
@@ -268,6 +266,7 @@ Sn^2 - Sn - 1
     Pour ces différentes raisons, le langage de notre implémentation a évidemment été Python
     \footnote{Plus exactement, Python 2.7.9}.
     \subsection{Objectifs \& Étapes}
+        \label{sec:obj}
         Le module que nous avons écrit est principalement constitué de la défintion
         d'une classe.
         Initialement, nous avons convenu d'une hierarchie d'objectifs que nous souhaitions 
@@ -417,7 +416,7 @@ Sn^2 - Sn - 1
         a $100$.\\
         \par Le dernier point que nous avons implémenté concernant ces fonctions,
         est la possibilité d'utiliser les slices de Python. Les slices, sont des objets
-        qui peuvent être paramètre de \texttt{\uline getitem\uline}. Pour une liste, ils permettent
+        qui peuvent être paramètres de \texttt{\uline getitem\uline}. Pour une liste, ils permettent
         d'indiquer qu'on souhaite obtenir une \og tranche \fg\ de la liste, par exemple, les éléments
         8 à 13, éventuellement avec un pas. Dans notre cas, nous avons simplement adapté notre
         fonction, afin qu'elle calcule le premier élément de la tranche avec la méthode optimale,
@@ -453,7 +452,7 @@ Sn^2 - Sn - 1
             &S_0 = 0, S_1 = 2, S_2 = 2, S_3 = 4, S_4 = 7
         \end{align*} 
         
-        \par Cependant la suite nouvellement formée présente une ou plusieurs singularité.
+        \par Cependant la suite nouvellement formée peut présenter une ou plusieurs singularité.
         Prenons la cas
         de la somme des suites des  \texttt{Entier consecutif} et \texttt{Fibonacci}
         \begin{align*}
@@ -469,7 +468,7 @@ Sn^2 - Sn - 1
         mais nous remarquons que le terme $D_4$ est singulier (cf section \ref{sec:cons}), et ne peut 
         être calculé. En revanche, $F_4$ et $E_4$ existent, nous avons donc décidé que lorsque l'annihilateur
         de la somme de deux suites est dans un cas similaire à celui-ci, nous calculons la somme des
-        ingularités et les rajoutons dans les conditions initales.
+        singularités et les rajoutons dans les conditions initales.
         \par En ce qui concerne la multiplication, le principe est exactement le même sauf que la 
         multiplication de deux opérateur se calcule grâce à la fonction \texttt{symmetric\_product},
         qui est également fournie par \textsc{OreAlgebra}.
