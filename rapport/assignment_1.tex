@@ -20,6 +20,14 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{pifont}
+\usepackage{fancyvrb}
+\usepackage{xparse}
+\usepackage{tgcursor}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily,
+    mathescape
+}
 
 % Margins
 %\topmargin=-0.45in
@@ -70,6 +78,22 @@
 %\renewcommand{\item}{\item[$\bullet$]}
 \newcommand{\itemV}{\item[{\color{green} \ding{51}}]}
 \newcommand{\itemX}{\item[{\color{red} \ding{55}}]}
+\newcommand{\Sn}{\mathrm{Sn}}
+
+\newenvironment{repl}
+ {\VerbatimEnvironment
+  \let\FancyVerbFormatLine\shellformatline
+  \Verbatim}
+ {\endVerbatim}
+
+\ExplSyntaxOn
+\NewDocumentCommand{\shellformatline}{m}
+ {
+  \str_if_eq_x:nnTF { \tl_head:n { #1 } } { > }
+   { sage: \bfseries \tl_tail:n { #1 } }
+   { #1 }
+              }
+\ExplSyntaxOff
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -158,18 +182,33 @@
         à des suites arbitraires, les suites p-récursives, bien que comportant un nombre
         infini de termes, peuvent être représentées exactement simplement
         avec la relation de récurrence, et les conditions initiales.
-        Des exemples communs de suites p-récursives
-        sont par exemple la suite de Fibonacci, ou la fonction factorielle :
+        Par exemple, pour des exemples communs de suites p-récursives : 
         \begin{align*}
             \textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n &= 0, \qquad F_0=0, F_1=1\\
             \textnormal{Factorielle : } (n+1)! - (n+1)(n!) &= 0, \qquad 0!=1
         \end{align*}
-        De plus, les suites p-récursives forment un anneau ({\color{red} Donner les détails?}).
+        De plus, les suites p-récursives ont une structure d'anneau. Plus exactement,
+        elles vivent dans une algèbre dite d'Ore.\\
+        \par Les algèbres d'Ore, sont un sujet
+        portant bien au-delà du contexte de ce projet, mais quelques notions de bases
+        ont été nécessaires pour celui-ci. Une algèbre d'Ore est déterminée par un
+        anneau de base, et un nombre fini de générateur. Dans notre cas, l'anneau de base
+        sera l'anneau des polynômes en $n$ sur $\mathbb Z$ (ou $\mathbb {Q,R,C,F}_p$, voir
+        \ref{sec:obj}), et l'opérateur sera $\Sn$, appelé opérateur de décalage standard, et
+        défini ainsi : $\Sn : n\mapsto n+1$.\\
+        En tenant compte de ces définitions,
+        il est possible de voir la relation de récurrence d'une suite P-récursive,
+        comme l'application d'un opérateur à une suite $(u_n)_{n\in\mathbb N}$,
+        où l'opérateur en question est un polynôme en $n$ et $\Sn$. Cet opérateur
+        est appelé opérateur d'annihilation, ou annihilateur. En reprenant les exemples
+        précédents :
+        \begin{align*}
+            \textnormal{Fibonacci : } (\Sn^2 - \Sn - 1)F_n &= F_{n+2} - F_{n+1} - F_n = 0\\
+            \textnormal{Factorielle :} (\Sn - (n+1))(n!) &= (n+1)! - (n+1)(n!) = 0\\
+        \end{align*}
         Dès lors, il semble pertinent
         de réaliser une implémentation utilisant ces propriétés mathématiques afin de
         manipuler et utiliser les suites p-récursives.\\
-        {\color{red} TODO : ore\_algebra what \& why\\ Intro ore...} Pour le présent projet,
-        nous n'avons besoin que des notions traitant des suites p-récursives.
     \subsection{Python \& Sage}
         \label{sec:sage}
         \par Sage est un outil de calcul formel libre.
@@ -179,10 +218,8 @@
         Sage s'appuie sur des outils
         et librairies déjà existants comme NumPy, SciPy, matplotlib, FLINT et d'autres...
         L'utilisation de ces outils est unifiée et uniformisée au travers d'un langage
-        basé sur Python. Ce langage présente une syntaxe qui diffère légérement de celle
-        de Python. Ainsi, Sage est doté d'un "pré-analyseur" ou "pré-parseur",
-        qui transforme les idiomes Sage en pur Python.
-        En particulier, Python 2, puisque Sage n'est pas compatible avec Python 3
+        basé sur Python dont la syntaxe diffère légérement de celle
+        de Python. En particulier, Python 2, puisque Sage n'est pas compatible avec Python 3
         (bien que des efforts soient faits en ce sens).
         \par Bien que Sage fournisse de nombreuses librairies mathématiques,
         il n'inclut pas encore officiellement de librairie pour les algèbres d'Ore.
@@ -197,22 +234,47 @@
         sur celle de Python.
         C'est celle-ci qui est utilisée dans l'article de documentation du module, et que nous
         reprendrons ici. Cela permettra également de présenter brièvement les éléments de syntaxe
-        basiques, spécifiques à Sage.\\
-        {\color{red} TODO code extracts + explications. Pres ring/fields/pols/orealgebra}
+        basiques, spécifiques à Sage.
+        \begin{repl}
+> R.<n> = PolynomialRing(ZZ)
+> A.<Sn> = OreAlgebra(R)
+> Sn*n
+(n+1)*Sn
+> fibo = Sn^2 - Sn - 1 ; print fibo
+Sn^2 - Sn - 1
+> fact = Sn - n - 1 ; sum = fibo.lclm(fact) ; print sum
+(n^2 + 2*n)*Sn^3 + (-n^3 - 6*n^2 - 9*n -3)*Sn^2 + 
+        (n^3 + 4*n^2 + 5*n3)*Sn + n^3 + 5*n^2 + 7*n +3
+\end{repl}
+        Nous avons ici déclaré un anneau de polynômes en $n$ sur $\mathbb Z$,
+        puis déclaré une algèbre d'Ore sur cet anneau, dont le générateur est $\Sn$.
+        La troisième entrée correspond à une simple application de $\Sn$ à $n$,
+        tandis que la quatrième est la déclaration de l'annihilateur de la suite
+        de Fibonacci. Enfin, nous avons également déclaré l'annihilateur de la fonction
+        factorielle, et nous l'avons sommé à celui de Fibonacci. La somme est réalisée
+        grâce à la fonction \texttt{lclm}, et nous expliquons plus en détails
+        dans la section \ref{sec:ring} à quoi correspond cette fonction.
+
+
 
 %----------------------------------------------------------------------------------------
 %----------------------------------------------------------------------------------------
 
 \section{Méthodologie}
     \label{sec:methodo}
-    \par La première tâche à laquelle nous nous sommes attelés a été une recherche bibliographique,
+    %Ainsi, Sage est doté d'un "pré-analyseur" ou "pré-parseur",
+        qui transforme les idiomes Sage en pur Python.
+
+    \par La première tâche à laquelle nous nous sommes attelés a été une recherche
+    bibliographique,
     pour comprendre le sujet (les suites p-récursives), et nos outils (Sage, Python et la 
     bibliothèqe \textsc{OreAlgebra}).
     Les résultats de cette démarche sont présentés dans la section \ref{sec:intro}.\\
     Puis nous avons commencé à discuter de l'implémentation. Bien que Sage dispose de sa propre
     syntaxe, il est d'usage d'écrire les modules en \og Python pur \fg. La syntaxe spécifique
     de Sage est surtout du sucre syntaxique pour l'interface en ligne de
-    commande. De plus, le pré-parseur de Sage n'est pas d'une robustesse à toute épreuve,
+    commande et est transformée en Python à l'aide d'un "pré-analyseur" ou "pré-parseur".
+    Or, celui-ci n'est pas d'une robustesse à toute épreuve,
     et son utilisation peut engendrer des résultats non voulus, et imprévisibles. Enfin, 
     cela présente également l'intérêt de produire du code réutilisable dans un cadre plus large.
     Pour ces différentes raisons, le langage de notre implémentation a évidemment été Python
@@ -275,14 +337,22 @@
         Le principal problème pour cette fonction, a été de déterminer les choix que nous
         faisions (et allions imposer à l'utilisateur) concernant les conditions initiales.
         Cette problématique est liée à la possibilité pour une suite d'avoir des
-        valeurs dégénérées, et arrive lorsque le terme dominant de la récurrence 
+        \og singularités\fg, et arrive lorsque le terme dominant de la récurrence 
         a une racine ou plus dans $\mathbb Z$. Prenons par exemple la suite
         définie par $(n-2)u_{n+1} - u_n = 0, u_0 = 1$. Nous pouvons sans problème calculer
-        les deux termes suivants de la suite, $u_1 = \frac{-1}{2}, u_2 = \frac{1}{2}$,
-        mais la relation de récurrence ne permet pas de calculer $u_3$, et donc tous les termes suivants.
-        Une solution simple est de permettre à l'utilisateur de fixer des conditions initiales
+        les deux termes suivants de la suite, $u_1 = \frac{-1}{2}, u_2 = \frac{1}{2}$.
+        Cependant, en $n=2$, on a $0\times u_3 - u_2=0$. Cette relation pose deux problèmes.\\
+        Le premier est que la relation est potentiellement contradictoire avec les
+        résultas précédents et/ou les conditions initiales, comme c'est le cas dans cet exemple
+        puisqu'on a $u_2=0\ne\frac{1}{2}$. De plus, elle ne permet pas de calculer
+        $u_3$ (et \textit{a fortiori} toutes les valeurs suivantes).\\
+        \par Pour le premier problème, nous avons simplement choisi de ne pas
+        considérer les relations linéaires supplémentaires, induites par l'existence d'une
+        ou plusieurs racines dans le terme dominant. Pour le second problème, 
+        une solution simple est de permettre à l'utilisateur de fixer des conditions initiales
         supplémentaires. Dans notre exemple, ajouter la condition $u_3 = 3$ permet de
-        contourner la racine, et calculer toutes les valeurs suivantes, $u_4 = 3,u_5=\frac{3}{2}\ldots$
+        contourner la racine, et calculer toutes les valeurs suivantes,
+        $u_4 = 3,u_5=\frac{3}{2}\ldots$\\
         \par Suite à ce raisonnement, nous avions pris la décision de vérifier le terme
         dominant de l'annihilateur, et d'imposer à l'utilisateur de spécifier des 
         valeurs supplémentaires pour toutes les racines de celui-ci. De plus,
@@ -317,11 +387,11 @@
         \label{sec:getitem}
         Pour obtenir un élément d'une suite, il nous semblait logique de surcharger l'opérateur
         \texttt{\uline getitem\uline }, qui permet d'obtenir un élément de la manière suivante : 
-        \texttt{u[42]}. En plus de ce choix, nous avons également surchargé la fonction
+        \texttt{u[42]}. En plus de ce choix, nous avons également écrit la fonction
         \texttt{to\_list(n)}, qui nous permet d'obtenir une liste des éléments de la suite, jusqu'à $n$.
         Nous avons utilisé plusieurs implémentations successives pour ces fonctions.
-        Après être passés par l'innévitable \og méthode brouillone \fg, ou le code était duppliqué,
-        et aucune des deux fonctions n'avaient une identité propre, nous avons finalement opté pour
+        Après être passés par l'innévitable \og méthode brouillone \fg, ou le code était dupliqué,
+        nous avons finalement opté pour
         faire en sorte que \texttt{to\_list} appelle \texttt{\uline getitem\uline}. Une fois ce point
         éclairci, il nous restait à savoir comment implémenter le calcul même. Notre premier choix
         a été d'utiliser la fonction \texttt{to\_list} des objets \textsc{OreAlgebra}. En effet,
@@ -329,8 +399,8 @@
         jusqu'à la valeur désirée.
         \par Cependant, nous avons remarqué que cette méthode présentait un défaut important : son
         temps de calcul. Ceci est dû au fait que pour calculer un élément $n$, cette fonction
-        calcule tous les éléments dans l'intervalle $[0,n]$. Or ceci est complètement inneficace
-        dans le cas où on ne veut que l'élément $n$. Pour palier à ce problème, notre encadrant nous 
+        calcule tous les éléments dans l'intervalle $[0,n]$. Or ceci est complètement ineficace
+        dans le cas où on ne veut que l'élément $n$. Pour pallier ce problème, notre encadrant nous 
         a suggéré d'utiliser la fonction \texttt{forward\_matrix\_bsplit}.
         {\color{red} Explications fctmt ou boite noire.}
         Cette fonction permet de calculer directement un élément de la suite, sans calculer tous ses
@@ -346,7 +416,7 @@
         \begin{figure} \begin{center}
             \includegraphics[scale=0.7]{figures/graphe.png}
             \caption{\label{fig:getitem}Rapport du temps de calcul avec \texttt{to\_list} sur le temps
-            de calcul avec \texttt{forward\_matrix\_bsplit}, pour différentes valeurs de n, et différents
+            de calcul avec \texttt{forward\_matrix\_bsplit}, pour différentes valeurs de $n$, et différents
             ordres de récurrence. On utilise une échelle logarithmique.}
         \end{center} \end{figure}
         Ces résultats ont été obtenus en prennant la moyenne du temps d'exécution sur 10 exécutions avec
@@ -393,17 +463,17 @@
         \par Cependant la suite nouvellement formée n'est pas toujours aussi facile à traiter, prenons la cas
         de la somme des suites des  \texttt{Entier consecutif} et \texttt{Fibonacci}
         \begin{align*}
-            \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, N_1 = 1\\
+            \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, E_1 = 1\\
             \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
             \textnormal{Leur Sommme : } &(n - 1)D_{n+3} + (-2n + 1)D_{n+2} + D_{n+1} + nD_n = 0, \\
             &D_0 = 0, D_1 = 2, D_2 = 3\\
         \end{align*} 
-        Cette suite est d'ordre 3, on devrais donc sommer les 3 premiers termes de E et F (respectivement 
+        La somme est d'ordre 3, on devrait donc sommer les 3 premiers termes de E et F (respectivement 
         $[0,1,2]$ et $[0,1,1]$) ce qui donnerai comme conditions initial pour D : $[0,2,3]$.
         Si 
         l'on essaie de dérouler la récurrence pour calculer le prochain terme, nous obtenons $D_3 = 5$,
         mais nous remarquons que le terme $D_4$ est dégénéré (cf section \ref{sec:cons}), et ne peut 
-        être calculé. En revanche,$F_4$ et $E_4$ existent, nous avons donc décidé que lorsque l'annihilateur
+        être calculé. En revanche, $F_4$ et $E_4$ existent, nous avons donc décidé que lorsque l'annihilateur
         de la somme de deux suites est dans un cas similaire à celui-ci, nous calculons la somme des
         éléments dégénérés et les rajoutons dans les conditions initales.
         \par En ce qui concerne la multiplication, le principe est exactement le même sauf que la 
