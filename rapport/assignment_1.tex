@@ -353,7 +353,7 @@ Sn^2 - Sn - 1
         supplémentaires. Dans notre exemple, ajouter la condition $u_3 = 3$ permet de
         contourner la racine, et calculer toutes les valeurs suivantes,
         $u_4 = 3,u_5=\frac{3}{2}\ldots$\\
-        \par Suite à ce raisonnement, nous avions pris la décision de vérifier le terme
+        \par Initialement, nous avions pris la décision de vérifier le terme
         dominant de l'annihilateur, et d'imposer à l'utilisateur de spécifier des 
         valeurs supplémentaires pour toutes les racines de celui-ci. De plus,
         toutes les valeurs dans $[i_{min},r_{max}]$ devaient être renseignées,
@@ -365,8 +365,8 @@ Sn^2 - Sn - 1
         De même, dans le cas où il n'a besoin que de termes dont l'indice est petit devant
         $r_{max}$, l'obliger à donner les valeurs jusqu'à cette racine n'est pas logique.
         Nous sommes donc revenus sur cette décision, et avons choisi à la place de simplement
-        lever une exception lorsque l'utilisateur demande le calcul d'une valeur dégénérée
-        pour laquelle il n'a pas saisi de condition initiale supplémentaire.
+        lever une exception lorsque l'utilisateur demande le calcul d'une valeur singulière
+        pour laquelle il n'a pas saisi de condition initiale supplémentaire.\\
         \par Autoriser les conditions initiales supplémentaires entraîne cependant un second
         problème. Celui de savoir comment traiter ces valeurs vis-à-vis du calcul des
         éléments suivants. Deux approches ont été envisagées, et il n'est pas évident
@@ -420,7 +420,7 @@ Sn^2 - Sn - 1
             ordres de récurrence. On utilise une échelle logarithmique.}
         \end{center} \end{figure}
         Ces résultats ont été obtenus en prennant la moyenne du temps d'exécution sur 10 exécutions avec
-        des annihilateurs générés aléatoirement (et ne créant pas de termes dégénérés) et d'ordre fixé.
+        des annihilateurs générés aléatoirement (et ne créant pas de singularité) et d'ordre fixé.
         On note que dès le 
         calcul d'éléments de l'ordre de $100$, la méthode \texttt{forward\_matrix\_bsplit} est déjà plus
         efficace. Notons également que l'influence de l'ordre de la récurrence semble augmenter pour 
@@ -442,16 +442,22 @@ Sn^2 - Sn - 1
         Nous avons déjà évoqué le fait que les suites P-récursives forment un anneau,
         l'implémentation des fonctions d'addition et de multiplication était donc une étape
         importante de l'avancée du projet.
-        L'annihilateur de la somme de deux suites est definie comme le plus petit 
-        multiple commun à gauche (\texttt{lclm}) des deux annihilateurs des suite sommées.
-        C'est à dire, que c'est l'operateur de plus petit degré qui vérifie que la recurences des 
-        deux suites.
-        La fonction qui calcule le \texttt{lclm} de deux suites est fournie par la bibliothèque
-        \textsc{OreAlgebra}. 
-        Si la nouvelle suite est d'odre $n$ alors ses conditons initales seront la somme des 
-        $n$ premiers termes des deux suites. Pour cela nous utilisons la fonction \texttt{to\_list}
-        que nous avons écrite
-        et récuperons les $n$ premiers éléments des suites et les sommons.
+        Il est facile de montrer que le plus petit commun multiple à gauche (\texttt{lclm})
+        est un annihilateur de la somme de deux suites :
+        soient $a_1$ et $a_2$, deux annihilateurs des suites $u_1$ et $u_2$ respectivement,
+        et supposons que leur ppcm à gauche $a_{sum} = ba_1 = b'a_2$ existe. On a :
+        \begin{align*}
+            a_{sum}(u_1+u_2) &= a_{sum}u_1 + a_{sum}u_2\\
+            &= ba_1u_1 + b'a_2u_2 = 0\quad \text{CQFD}
+        \end{align*}
+
+        La fonction qui calcule le plus petit commun multiple à gauche de deux suites
+        est \texttt{lclm}, pour \textit{least common left multiple}, et est fournie par la
+        bibliothèque \textsc{OreAlgebra}. 
+        Si la nouvelle suite est d'odre $k$ alors ses conditons initales seront la somme des 
+        $k$ premiers termes des deux suites. Pour cela nous utilisons la fonction
+        \texttt{to\_list} que nous avons écrite
+        et récuperons les $k$ premiers éléments des suites et les sommons.
         Par exemple si l'on ajoute la suite de \texttt{Fibonacci} et celle de \texttt{Tribonacci} :
         \begin{align*}
             \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
@@ -460,7 +466,8 @@ Sn^2 - Sn - 1
             &S_0 = 0, S_1 = 2, S_2 = 2, S_3 = 4, S_4 = 7
         \end{align*} 
         
-        \par Cependant la suite nouvellement formée n'est pas toujours aussi facile à traiter, prenons la cas
+        \par Cependant la suite nouvellement formée présente une ou plusieurs singularité.
+        Prenons la cas
         de la somme des suites des  \texttt{Entier consecutif} et \texttt{Fibonacci}
         \begin{align*}
             \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, E_1 = 1\\
@@ -469,13 +476,13 @@ Sn^2 - Sn - 1
             &D_0 = 0, D_1 = 2, D_2 = 3\\
         \end{align*} 
         La somme est d'ordre 3, on devrait donc sommer les 3 premiers termes de E et F (respectivement 
-        $[0,1,2]$ et $[0,1,1]$) ce qui donnerai comme conditions initial pour D : $[0,2,3]$.
+        $(0,1,2)$ et $(0,1,1)$) ce qui donnerait comme conditions initiales pour D : $(0,2,3)$.
         Si 
         l'on essaie de dérouler la récurrence pour calculer le prochain terme, nous obtenons $D_3 = 5$,
-        mais nous remarquons que le terme $D_4$ est dégénéré (cf section \ref{sec:cons}), et ne peut 
+        mais nous remarquons que le terme $D_4$ est singulier (cf section \ref{sec:cons}), et ne peut 
         être calculé. En revanche, $F_4$ et $E_4$ existent, nous avons donc décidé que lorsque l'annihilateur
         de la somme de deux suites est dans un cas similaire à celui-ci, nous calculons la somme des
-        éléments dégénérés et les rajoutons dans les conditions initales.
+        ingularités et les rajoutons dans les conditions initales.
         \par En ce qui concerne la multiplication, le principe est exactement le même sauf que la 
         multiplication de deux opérateur se calcule grâce à la fonction \texttt{symmetric\_product},
         qui est également fournie par \textsc{OreAlgebra}.
