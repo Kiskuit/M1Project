@@ -36,10 +36,30 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{pifont}
+\usepackage{fancyvrb}
+\usepackage{xparse}
+\usepackage{tgcursor}
 
 \newlength{\charwidth}
 \setlength{\charwidth}{\widthof{\S}}
 \newcommand{\uline}{\underline{\hspace{2\charwidth}}}
+\newcommand{\Sn}{\mathrm{Sn}}
+
+
+\newenvironment{repl}
+ {\VerbatimEnvironment
+  \let\FancyVerbFormatLine\shellformatline
+  \Verbatim}
+ {\endVerbatim}
+
+\ExplSyntaxOn
+\NewDocumentCommand{\shellformatline}{m}
+ {
+  \str_if_eq_x:nnTF { \tl_head:n { #1 } } { > }
+   { sage: \bfseries \tl_tail:n { #1 } }
+   { #1 }
+ }
+\ExplSyntaxOff
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
@@ -70,6 +90,28 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
+\frametitle{Quelques objets mathématiques}
+\begin{minipage}{0.45\textwidth} \begin{center}
+    \begin{figure}\begin{center}
+        \includegraphics[scale=0.5]{fibo}
+    \end{center} \end{figure}
+    $F_{n+2} - F_{n+1} - F_n = 0$
+\end{center} \end{minipage}
+\hspace{2ex}
+\begin{minipage}{0.45\textwidth} \begin{center}
+    \begin{figure}\begin{center}
+        \includegraphics[scale=0.5]{delannoy}
+    \end{center} \end{figure}
+    $D(m,n) = D(m-1,n) + D(m-1,n-1) + D(m,n-1)$
+\end{center} \end{minipage}
+\vspace{1cm} \pause
+\begin{center}
+{\large mais aussi la fonction factorielle, le binôme de Newton, le nombre de partitions d'un
+    nombre...}
+\end{center}
+\end{frame}
+
+\begin{frame}
 \frametitle{Contexte \& problématique}
 \begin{center}
 Les suites P-récursives sont des objets couramment utilisés en mathématiques et en sciences.
@@ -92,6 +134,7 @@ Les suites P-récursives sont des objets couramment utilisés en mathématiques 
 \begin{frame}
 \frametitle{Suites P-récursives}
 \begin{center}
+    \vspace{-2ex}
 \begin{block}{Définition formelle} \begin{center}
     Une suite P-récursive sur un corps $\mathbb K$ vérifie la propriété suivante :
     \begin{equation*}
@@ -101,21 +144,15 @@ Les suites P-récursives sont des objets couramment utilisés en mathématiques 
 \end{center} \end{block}
 Une suite P-récursive peut être représentée exactement avec sa relation de récurrence,
 et ses conditions initiales$^*$
-\begin{block}{Exemples}
+\begin{exampleblock}{Exemples}
+    \vspace{-2ex}
     \begin{eqnarray*}
-        \textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n = 0, & \qquad F_0 = 0, F_1 = 1 \\
-        \textnormal{Factorielle : } (n+1)! - (n+1)(n!) = 0, & \qquad 0! = 1 \\
+        \text{Fibonacci : } F_{n+2} - F_{n+1} - F_n = 0,  \qquad &F_0 = 0, F_1 = 1 \\
+        \text{Factorielle : } (n+1)! - (n+1)(n!) = 0,  \qquad &0! = 1 \\
+        \textit{Fonction anodine : } (n-2)u_{n+1} - u_n = 0,  \qquad &u_0 = 2\\
     \end{eqnarray*}
-\end{block}
-\end{center}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Algèbre d'Ore}
-\begin{center}
-\emph{TODO}\\
+    \vspace{-7ex}
+\end{exampleblock}
 \end{center}
 \end{frame}
 
@@ -127,7 +164,7 @@ et ses conditions initiales$^*$
 \begin{block}{SageMath, qu'est-ce que c'est?}
     \begin{itemize}
         \item Un logiciel de calcul formel
-        \item Opensource
+        \item Open source
         \item Construit sur un ensmble d'outil pré-éxistant et Python
         \item Basé sur Python
         \item Doté d'une syntaxe spécifique pour la ligne de commande
@@ -147,26 +184,29 @@ et ses conditions initiales$^*$
 %------------------------------------------------
 
 \begin{frame}
-\frametitle{La bibliothèque \textsc{OreAlgebra}}
+\frametitle{Les algèbres d'Ore}
 \begin{center}
-\begin{itemize}
-    \item Implémente l'algèbre d'Ore
-    \item Non intégrée au projet Sage, et développée par la communauté
-    \item Contient une partie des outils nécessaires à la réalisation du projet
-        \begin{itemize}
-            \item Définir une algèbre dans laquelle travailler\\
-                \texttt{
-                    R.<n> = PolynomialRing(ZZ)\\
-                    \hspace{1.3ex}A.<Sn> = OreAlgebra(R)
-                }
-            \item Les fonctions \texttt{lclm} et \texttt{symmetric\_product} pour $+/\times$\\
-                \texttt{
-                    annihilSum = annihil1.lclm(annihil2)\\
-                    \hspace{1.3ex}annihilProd = annihil1.symmetric\_product(annihil2)
-                }
-            \item La fonction \texttt{forward\_matrix\_bsplit} pour le calcul d'un terme
+\begin{block}{Algèbres d'Ore}
+    \begin{itemize}
+        \item Bien plus vaste que le cadre de ce projet
+        \item Déterminée par un anneau, et un opérateur
     \end{itemize}
-\end{itemize}
+\end{block}
+\begin{exampleblock}{Exemples}
+    \begin{itemize}
+        \item L'anneau sera $\mathbb R[x]$
+        \item $\text{L'opérateur de décalage } \Sn \colon n \mapsto n+1$
+        \item On associe un opérateur d'annihilation à une suite :
+            \vspace{-2ex}
+            \begin{eqnarray*}
+                \text{Fibonacci : } &(\Sn^2 - \Sn - 1)F_n = 0\\
+                \text{Factorielle : } &(\Sn - (n+1))(n!) = 0\\
+                (u_n)_{n\in\mathbb N}~\colon &((n-2)\Sn - 1)u_n = 0
+            \end{eqnarray*}
+        \item Les annihilateurs sont des polynômes en $n$ et $\Sn$.
+        \item On utilise la bibliothèque \textsc{OreAlgebra} comme boîte à outils.
+    \end{itemize}
+\end{exampleblock}
 \end{center}
 \end{frame}
 
@@ -179,12 +219,12 @@ et ses conditions initiales$^*$
 \frametitle{Présentation du module}
 \begin{center}
 \begin{alertblock}{Problématique}
-    Créer un module permettant la manipulation des suites p-récursives
+    Créer un module facilitant la manipulation des suites p-récursives.
 \end{alertblock}
 \vspace{0.6cm}
 \begin{block}{Caractéristiques}
     \begin{itemize}
-        \item {\small En Python}
+        \item {\footnotesize En Python}
         \item Basé sur le modèle de programmation objet : une classe
         \item Surcharge d'opérateurs
         \item Des tests
@@ -234,25 +274,31 @@ Notre classe n'étend aucune classe pré-éxistante.
 
 %------------------------------------------------
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Constructeur}
 \begin{center}
-C'est la méthode appelée par Python lors d'une instanciation de la classe.\\
-C'est la première interaction de l'utilisateur avec le module.\\
-\begin{block}{Comportement par défaut}
-    \texttt{ u = PRecSequence (conditions,annihilateur) }\\
-    \texttt{conditions} est un dictionnaire\\
-    \texttt{annihilateur} est un objet du module \textsc{OreAlgebra}\\
-\end{block}
+\begin{exampleblock}{Comportement par défaut}
+    \begin{repl}
+> fibo = PRecSequence ({0:0,1:1}, Sn**2 - Sn - 1)
+> fact = PRecSequence ({0:1}, Sn - n - 1)
+> u = PRecSequence ({0:2}, (n-2)*Sn - 1)
+    \end{repl}
+\end{exampleblock}
 \begin{block}{Comportements secondaires}
     D'autres comportements sont possibles, grâce aux arguments optionnels de Python
     \begin{itemize}
-        \item Création d'une suite constante
-        \item "Guessing" a partir d'une liste d'éléments
+        \item Création d'une suite constante :
+            \begin{repl}
+> u_const = PRecSequence (const=5)
+            \end{repl}
+        \item "Guessing" a partir d'une liste d'éléments:
+            \begin{repl}
+> fib_guess = PRecSequence ([0,1,1,2,3,5,8],R)
+> print fib_guess.annihilator
+-Sn^2 + Sn + 1
+            \end{repl}
     \end{itemize}
 \end{block}
-{\color{blue} Faut-il remplacer l'utilisation des arguments mots-clefs par le 
-    décorateur \texttt{@classmethod}?}
 \end{center}
 \end{frame}
 
@@ -261,12 +307,16 @@ C'est la première interaction de l'utilisateur avec le module.\\
 \begin{frame}
 \frametitle{Constructeur - Problèmes}
 \begin{center}
-\begin{alertblock}{Les valeurs dégénérées}
-    Lorsque le polynôme dominant a des racines dans $\mathbb Z$ :\\
-    $(n-1)u_{n+1} - u_n =0, u_0=1$\hspace{1cm}$u_0=1,u_1=(-1)u_0=-1, u_2=???$
+\begin{alertblock}{Les valeurs singulières}
+    Lorsque le polynôme dominant a des racines dans $\mathbb Z$ :
+    \begin{align*}
+        (n-2)u_{n+1} - u_n = 0 &\qquad u_0=2\\
+        -2*u_1 - u_0 = 0 &\qquad\Rightarrow u_1 = -1\\
+        -u_2 - u_1 = 0 &\qquad\Rightarrow u_2 = 1\\
+        0*u_3 - u_2 = 0 &\qquad\Rightarrow u_2 = 0, u_3 =???\\
+    \end{align*}
 \end{alertblock}
 \pause
-\vspace{1cm}
 \begin{exampleblock}{Les conditions initiales supplémentaires}
     Il est nécessaire de permettre de fixer des conditions supplémentaires.\\
     \pause
@@ -280,16 +330,20 @@ C'est la première interaction de l'utilisateur avec le module.\\
 
 %------------------------------------------------
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Constructeur - Conditions initiales}
 \begin{center}
 {\large Comment traiter les conditions initiales supplémentaires?}
 \begin{block}{Les valeurs n'influent pas le calcul}
-    $u_{n+2} - u_{n+1} - u_n = 0, u_0=0, u_1=1, u_5=6$\\
+    \begin{repl}
+> PRecSequence ({0:0,1:1,5:6}, Sn**2 - Sn - 1)
+    \end{repl}
     Les valeurs de la suite sont $(0,1,1,2,3,6,8,13,21\ldots)$
 \end{block}
 \begin{block}{Les valeurs influent sur les termes suivants}
-    $u_{n+2} - u_{n+1} - u_n = 0, u_0=0, u_1=1, u_5=6$\\
+    \begin{repl}
+> PRecSequence ({0:0,1:1,5:6}, Sn**2 - Sn - 1)
+    \end{repl}
     Les valeurs de la suite sont $(0,1,1,2,3,6,9,15,24\ldots)$
 \end{block}
 \end{center}
@@ -361,43 +415,43 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 
 %------------------------------------------------
 
-\begin{frame}
-\frametitle{Addition et multiplication}
-\begin{center}
-\begin{exampleblock}{Utiliser les facteurs}
-    \begin{align*}
-        \textnormal{Const : } &C_{n+1} - C_n = 0,\qquad E_0 = 2,\\
-        \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
-        \textnormal{Leur Sommme : } &S_{n+3} - 2*S_{n+2} + S_n = 0 \\
-        &S_0 = 2, S_1 = 3, S_2 = 3\\
-    \end{align*}\\
-    $Const.lclm(Fibonacci)= Sn^3 - 2*Sn^2 + 1  $\\
-    l'opérateur annule les deux suites\\
-    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34,...]\\
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2,..]\\
-\end{exampleblock}
-\end{center}
-\end{frame}
-
-%------------------------------------------------
-\begin{frame}
-\frametitle{Addition et multiplication - Procurer des conditions supplémentaires}
-\begin{center}
-\begin{alertblock}{Termes dégénérés dans les sommes/produits}
-    Le coefficient dominant de certains produits ou sommes ont des racines dans $\mathbb Z$.
-\end{alertblock}
-\begin{exampleblock}{Utiliser les facteurs}
-    \begin{align*}
-        \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, N_1 = 1\\
-        \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
-        \textnormal{Leur Sommme : } &(n - 1)D_{n+3} + (-2n + 1)D_{n+2} + D_{n+1} + nD_n = 0, \\
-        &D_0 = 0, D_1 = 2, D_2 = 3\\
-    \end{align*}\\
-    \vspace{-0.7cm}
-    $D_4$ est dégénéré, mais $E_4$ et $F_4$ existent.
-\end{exampleblock}
-\end{center}
-\end{frame}
+%%%   \begin{frame}
+%%%   \frametitle{Addition et multiplication}
+%%%   \begin{center}
+%%%   \begin{exampleblock}{Utiliser les facteurs}
+%%%       \begin{align*}
+%%%           \textnormal{Const : } &C_{n+1} - C_n = 0,\qquad E_0 = 2,\\
+%%%           \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
+%%%           \textnormal{Leur Sommme : } &S_{n+3} - 2*S_{n+2} + S_n = 0 \\
+%%%           &S_0 = 2, S_1 = 3, S_2 = 3\\
+%%%       \end{align*}\\
+%%%       $Const.lclm(Fibonacci)= Sn^3 - 2*Sn^2 + 1  $\\
+%%%       l'opérateur annule les deux suites\\
+%%%       [0, 1, 1, 2, 3, 5, 8, 13, 21, 34,...]\\
+%%%       [2, 2, 2, 2, 2, 2, 2, 2, 2, 2,..]\\
+%%%   \end{exampleblock}
+%%%   \end{center}
+%%%   \end{frame}
+%%%   
+%%%   %------------------------------------------------
+%%%   \begin{frame}
+%%%   \frametitle{Addition et multiplication - Procurer des conditions supplémentaires}
+%%%   \begin{center}
+%%%   \begin{alertblock}{Termes dégénérés dans les sommes/produits}
+%%%       Le coefficient dominant de certains produits ou sommes ont des racines dans $\mathbb Z$.
+%%%   \end{alertblock}
+%%%   \begin{exampleblock}{Utiliser les facteurs}
+%%%       \begin{align*}
+%%%           \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, N_1 = 1\\
+%%%           \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
+%%%           \textnormal{Leur Sommme : } &(n - 1)D_{n+3} + (-2n + 1)D_{n+2} + D_{n+1} + nD_n = 0, \\
+%%%           &D_0 = 0, D_1 = 2, D_2 = 3\\
+%%%       \end{align*}\\
+%%%       \vspace{-0.7cm}
+%%%       $D_4$ est dégénéré, mais $E_4$ et $F_4$ existent.
+%%%   \end{exampleblock}
+%%%   \end{center}
+%%%   \end{frame}
 
 %------------------------------------------------
 
