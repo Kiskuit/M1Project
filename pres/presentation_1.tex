@@ -320,7 +320,7 @@ Notre classe n'étend aucune classe pré-éxistante.
 \begin{exampleblock}{Les conditions initiales supplémentaires}
     Il est nécessaire de permettre de fixer des conditions supplémentaires.\\
     \pause
-    \textbf{1\iere{} idée} : Obliger l'utilisateur à renseigner les valeurs dégénérées. Obliger 
+    \textbf{1\iere{} idée} : Obliger l'utilisateur à renseigner les valeurs singulières. Obliger 
     l'utilisateur à saisir \textit{toutes} les valeurs jusqu'à la dernière racine.\\
     \pause
     \textbf{2\ieme{} idée} : Lever des exceptions
@@ -392,22 +392,38 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 
 %------------------------------------------------
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Addition et multiplication}
 \begin{center}
 \begin{block}{Principe}
     \begin{itemize}
-        \item Trouver un operateur qui annule les deux termes
-        \item Trouver de nouvelle conditions initials
+        \item Trouver un opérateur qui annule les deux termes
+        \item Trouver de nouvelles conditions initiales
     \end{itemize}
 \end{block}
 \pause
-\begin{alertblock}{Problèmes}
-    \begin{itemize}
-        \item Comment trouver cet opérateur ?
-        \item Comment faire si cet opérateur a des racine sur son coefficient dominant?
-    \end{itemize}
-\end{alertblock}
+\begin{exampleblock}{Exemple}
+    \begin{repl}
+> C = PRecSequence ({0:0}, Sn - 1)
+> S = fibo + C ; print S.annihilator
+Sn^3 - 2*Sn^2 + Sn
+    \end{repl}
+    L'annihilateur de S annule fibo et C.
+\end{exampleblock}
+\pause
+\begin{block}{Mathématiquement}
+    \begin{repl}
+> op1 = fibo.annihilator ; op2 = C.annihilator
+> op1.lclm(op2)
+Sn^3 - 2*Sn^2 + Sn
+    \end{repl}
+\end{block}
+%%%   \begin{alertblock}{Problèmes}
+%%%       \begin{itemize}
+%%%           \item Comment trouver cet opérateur ?
+%%%           \item Comment faire si cet opérateur a des racines sur son coefficient dominant?
+%%%       \end{itemize}
+%%%   \end{alertblock}
 \end{center}
 \end{frame}
 
@@ -415,32 +431,45 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 
 %------------------------------------------------
 
-%%%   \begin{frame}
+%%%   \begin{frame}[fragile]
 %%%   \frametitle{Addition et multiplication}
 %%%   \begin{center}
-%%%   \begin{exampleblock}{Utiliser les facteurs}
+%%%   \begin{block}{Utiliser les facteurs}
+%%%       \begin{repl}
+%%%   > C = PRecSequence ({0:0}, n*Sn - n - 1)
+%%%   > S = fibo + C ; print S.annihilator
+%%%   Sn^3 - 2*Sn^2 + Sn
+%%%       \end{repl}
+%%%       L'annihilateur de S annule fibo et C.
 %%%       \begin{align*}
-%%%           \textnormal{Const : } &C_{n+1} - C_n = 0,\qquad E_0 = 2,\\
-%%%           \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
-%%%           \textnormal{Leur Sommme : } &S_{n+3} - 2*S_{n+2} + S_n = 0 \\
-%%%           &S_0 = 2, S_1 = 3, S_2 = 3\\
+%%%           \textnormal{Const : } C_{n+1} - C_n = 0,&\qquad E_0 = 2,\\
+%%%           \textnormal{Fibonacci : } F_{n+2} - F_{n+1} - F_n = 0,&\qquad F_0=0, F_1=1\\
+%%%           \textnormal{Leur Sommme : } S_{n+3} - 2*S_{n+2} + S_n = 0& \\
 %%%       \end{align*}\\
 %%%       $Const.lclm(Fibonacci)= Sn^3 - 2*Sn^2 + 1  $\\
 %%%       l'opérateur annule les deux suites\\
-%%%       [0, 1, 1, 2, 3, 5, 8, 13, 21, 34,...]\\
-%%%       [2, 2, 2, 2, 2, 2, 2, 2, 2, 2,..]\\
-%%%   \end{exampleblock}
+%%%       $[0, 1, 1, 2, 3, 5, 8, 13, 21, 34,...]$\\
+%%%       $[2, 2, 2, 2, 2, 2, 2, 2, 2, 2,..]$\\
+%%%   \end{block}
 %%%   \end{center}
 %%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   \begin{frame}
-%%%   \frametitle{Addition et multiplication - Procurer des conditions supplémentaires}
-%%%   \begin{center}
-%%%   \begin{alertblock}{Termes dégénérés dans les sommes/produits}
-%%%       Le coefficient dominant de certains produits ou sommes ont des racines dans $\mathbb Z$.
-%%%   \end{alertblock}
-%%%   \begin{exampleblock}{Utiliser les facteurs}
+
+%------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{Addition et multiplication - Procurer des conditions supplémentaires}
+\begin{center}
+\begin{alertblock}{Valeurs singulières dans les sommes/produits}
+    Le coefficient dominant de certains produits ou sommes ont des racines dans $\mathbb Z$.
+\end{alertblock}
+\begin{exampleblock}{Utiliser les facteurs}
+    \begin{repl}
+> E = PRecSequence ({0:0}, n*Sn - n - 1)
+> S = E + fibo ; print S.annihilator
+(n-1)*Sn^3 + (-2*n+1)*Sn^2 + Sn + n
+    \end{repl}
+    \begin{equation*}
+        S_0 = E_0 + F_0 = 0,~~S_1 = E_1 + F_1 = 2,~~S_2 = E_2 + F_2 = 3
+    \end{equation*}
 %%%       \begin{align*}
 %%%           \textnormal{Ent. Consec. : } &nE_{n+1} - (n+1)E_n = 0,\qquad E_0 = 0, N_1 = 1\\
 %%%           \textnormal{Fibonacci : } &F_{n+2} - F_{n+1} - F_n = 0,\qquad F_0=0, F_1=1\\
@@ -448,10 +477,11 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 %%%           &D_0 = 0, D_1 = 2, D_2 = 3\\
 %%%       \end{align*}\\
 %%%       \vspace{-0.7cm}
-%%%       $D_4$ est dégénéré, mais $E_4$ et $F_4$ existent.
-%%%   \end{exampleblock}
-%%%   \end{center}
-%%%   \end{frame}
+    $D_4$ est singulier, mais $E_4$ et $F_4$ existent :
+    $D_4 = E_4 + F_4 = 7$
+\end{exampleblock}
+\end{center}
+\end{frame}
 
 %------------------------------------------------
 
@@ -461,139 +491,5 @@ La seconde méthode est déjà plus efficace pour des valeurs de l'ordre de 100.
 \emph{TODO}
 \end{center}
 \end{frame}
-
-
-
-
-
-%%%   \begin{frame}
-%%%   \frametitle{Bullet Points}
-%%%   \begin{itemize}
-%%%   \item Lorem ipsum dolor sit amet, consectetur adipiscing elit
-%%%   \item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
-%%%   \item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
-%%%   \item Nam cursus est eget velit posuere pellentesque
-%%%   \item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
-%%%   \end{itemize}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \frametitle{Blocks of Highlighted Text}
-%%%   \begin{block}{Block 1}
-%%%   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-%%%   \end{block}
-%%%   
-%%%   \begin{block}{Block 2}
-%%%   Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-%%%   \end{block}
-%%%   
-%%%   \begin{block}{Block 3}
-%%%   Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-%%%   \end{block}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \frametitle{Multiple Columns}
-%%%   \begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-%%%   
-%%%   \column{.45\textwidth} % Left column and width
-%%%   \textbf{Heading}
-%%%   \begin{enumerate}
-%%%   \item Statement
-%%%   \item Explanation
-%%%   \item Example
-%%%   \end{enumerate}
-%%%   
-%%%   \column{.5\textwidth} % Right column and width
-%%%   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-%%%   
-%%%   \end{columns}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \frametitle{Table}
-%%%   \begin{table}
-%%%   \begin{tabular}{l l l}
-%%%   \toprule
-%%%   \textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-%%%   \midrule
-%%%   Treatment 1 & 0.0003262 & 0.562 \\
-%%%   Treatment 2 & 0.0015681 & 0.910 \\
-%%%   Treatment 3 & 0.0009271 & 0.296 \\
-%%%   \bottomrule
-%%%   \end{tabular}
-%%%   \caption{Table caption}
-%%%   \end{table}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \frametitle{Theorem}
-%%%   \begin{theorem}[Mass--energy equivalence]
-%%%   $E = mc^2$
-%%%   \end{theorem}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-%%%   \frametitle{Verbatim}
-%%%   \begin{example}[Theorem Slide Code]
-%%%   \begin{verbatim}
-%%%   \begin{frame}
-%%%   \frametitle{Theorem}
-%%%   \begin{theorem}[Mass--energy equivalence]
-%%%   $E = mc^2$
-%%%   \end{theorem}
-%%%   \end{frame}\end{verbatim}
-%%%   \end{example}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \frametitle{Figure}
-%%%   Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
-%%%   %\begin{figure}
-%%%   %\includegraphics[width=0.8\linewidth]{test}
-%%%   %\end{figure}
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-%%%   \frametitle{Citation}
-%%%   An example of the \verb|\cite| command to cite within the presentation:\\~
-%%%   
-%%%   This statement requires citation \cite{p1}.
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \frametitle{References}
-%%%   \footnotesize{
-%%%   \begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-%%%   \bibitem[Smith, 2012]{p1} John Smith (2012)
-%%%   \newblock Title of the publication
-%%%   \newblock \emph{Journal Name} 12(3), 45 -- 678.
-%%%   \end{thebibliography}
-%%%   }
-%%%   \end{frame}
-%%%   
-%%%   %------------------------------------------------
-%%%   
-%%%   \begin{frame}
-%%%   \Huge{\centerline{The End}}
-%%%   \end{frame}
-
-%----------------------------------------------------------------------------------------
 
 \end{document} 
